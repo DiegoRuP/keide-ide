@@ -1,0 +1,38 @@
+# Dependencias de Node.js
+node_modules/
+
+# Archivos de entorno
+.env
+*.env
+
+# Archivos generados por Electron
+dist/
+out/
+
+# Logs y caché
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.cache/
+
+# Configuraciones del IDE/Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Archivos de Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de construcción
+build/
+dist/
