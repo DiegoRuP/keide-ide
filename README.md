@@ -10,7 +10,7 @@ Sigue estos pasos para instalar y ejecutar Keide IDE en tu máquina:
 
 1. **Clona el repositorio**:
 ```bash
-git clone https://github.com/tuusuario/keide-ide.git
+git clone https://github.com/diegorup/keide-ide.git
 cd keide-ide
 ```
 2. **Instala dependencias**: 
