@@ -5,7 +5,42 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>Mi IDE Sencillo</h1>
+    <header>
+        <ul>
+            
+            <!-- Archivo -->
+            <li>Abrir
+                <!-- file -->
+                <img src="assets/file.svg" alt="open file">
+            </li>
+            <li>Guardar 
+                <!-- save -->
+                <img src="assets/save.svg" alt="save file">
+            </li>
+            <li>Guardar como...
+                <!-- save as -->
+                <img src="assets/save_as.svg" alt="save as file">
+            </li>
+
+            <!-- Analisis -->
+            <li>Analisis</li>
+                <li>Léxico</li>
+                <li>Sintáctico</li>
+                <li>Semántico</li>
+
+            <!-- Compilación -->
+            <li>Compilación</li>
+                <li>Compilar
+                    <!-- compile -->
+                    <img src="assets/compile.svg" alt="compile">
+                </li>
+                <li>Compilar y ejecutar
+                    <!-- compile and play -->
+                    <img src="assets/compile_play.svg" alt="compile and play">
+                </li>
+            
+        </ul>
+    </header>
     <textarea id="editor" placeholder="Escribe tu código aquí..."></textarea>
     <button id="compilar-btn">Compilar</button>
     <pre id="output"></pre>
