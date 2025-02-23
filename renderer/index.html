@@ -13,46 +13,36 @@
 </head>
 <body class="light-mode">
     <!-- Barra de herramientas -->
-    <header class="bg-light shadow-sm">
+    <header class="shadow-sm">
         <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center py-2">
+            <div class="d-flex justify-content-between align-items-center py-1">
                 <!-- Botones de archivo -->
                 <div>
-                    <button class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-folder-open"></i> Abrir
+                    <button class="btn btn-outline-light me-2">
+                        <i class="fas fa-folder-open"></i>
                     </button>
-                    <button class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-save"></i> Guardar
+                    <button class="btn btn-outline-light me-2">
+                        <i class="fas fa-save"></i>
                     </button>
-                    <button class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-save"></i> Guardar como...
+                    <button class="btn btn-outline-light me-2">
+                        <i class="fas fa-pencil"></i>
                     </button>
                 </div>
 
                 <!-- Botones de compilación -->
                 <div>
-                    <button class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-cogs"></i> Compilar
+                    <button class="btn btn-outline-light me-2">
+                        <i class="fas fa-cogs"></i>
                     </button>
-                    <button class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-play"></i> Compilar y ejecutar
+                    <button class="btn btn-outline-light me-2">
+                        <i class="fas fa-play"></i>
                     </button>
-                </div>
-
-                <!-- Pestañas de análisis -->
-                <div class="nav nav-tabs">
-                    <button class="nav-link">Análisis Léxico</button>
-                    <button class="nav-link">Análisis Sintáctico</button>
-                    <button class="nav-link">Análisis Semántico</button>
                 </div>
 
                 <!-- Botones de tema -->
                 <div>
-                    <button id="toggle-dark-mode" class="btn btn-outline-secondary me-2">
+                    <button id="toggle-dark-mode" class="btn btn-outline-light me-2">
                         <i class="fas fa-moon"></i>
-                    </button>
-                    <button id="reset-to-system" class="btn btn-outline-secondary">
-                        <i class="fas fa-adjust"></i>
                     </button>
                 </div>
             </div>
@@ -63,16 +53,41 @@
     <main class="container-fluid mt-3">
         <div class="row">
             <!-- Frame para el código -->
-            <div class="col-md-8">
+            <div class="col-md-9">
                 <textarea id="editor" class="form-control h-100" placeholder="Escribe tu código aquí..." rows="20"></textarea>
             </div>
 
-            <!-- Frame para los logs -->
-            <div class="col-md-4">
-                <pre id="output" class="h-100 p-3 bg-light border rounded"></pre>
+            <!-- Pestañas de análisis -->
+            <div class="col-md-3">
+                <div class="nav nav-pills flex-column">
+                    <button class="nav-link active" id="lexico-tab" data-bs-toggle="pill" data-bs-target="#lexico">Análisis Léxico</button>
+                    <button class="nav-link" id="sintactico-tab" data-bs-toggle="pill" data-bs-target="#sintactico">Análisis Sintáctico</button>
+                    <button class="nav-link" id="semantico-tab" data-bs-toggle="pill" data-bs-target="#semantico">Análisis Semántico</button>
+                </div>
+
+                <!-- Contenido de las pestañas -->
+                <div class="tab-content mt-3">
+                    <div class="tab-pane fade show active" id="lexico">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus dolorum eius explicabo reprehenderit, laborum voluptates? Exercitationem maiores natus reiciendis tempora nemo consectetur qui, expedita adipisci impedit dignissimos praesentium inventore perspiciatis.
+                    </div>
+                    <div class="tab-pane fade" id="sintactico">
+                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Placeat doloribus fuga fugiat soluta doloremque modi quo, natus, culpa consequuntur ducimus voluptatem earum accusantium, explicabo cumque animi! Eum hic temporibus nihil.
+                    </div>
+                    <div class="tab-pane fade" id="semantico">
+                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quasi alias accusantium cum amet hic dolores minima mollitia facere voluptatem! Suscipit atque dicta iste deserunt. Adipisci voluptatem repellendus amet illo nostrum.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Frame para los logs -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <pre id="output" class="h-100 p-3 border rounded"></pre>
             </div>
         </div>
     </main>
+
 
     <!-- Bootstrap JS (con Popper.js y jQuery) -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

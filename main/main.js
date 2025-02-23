@@ -26,10 +26,6 @@ ipcMain.handle('dark-mode:toggle', () => {
   return nativeTheme.shouldUseDarkColors;
 });
 
-ipcMain.handle('dark-mode:system', () => {
-  nativeTheme.themeSource = 'system';
-});
-
 app.whenReady().then(() => {
   createWindow();
 
