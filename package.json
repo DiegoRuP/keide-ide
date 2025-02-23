@@ -15,5 +15,9 @@
   "description": "",
   "devDependencies": {
     "electron": "^34.2.0"
+  },
+  "dependencies": {
+    "codemirror": "^6.0.1",
+    "keide-ide": "file:"
   }
 }

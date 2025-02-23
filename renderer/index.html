@@ -3,58 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <title>Keide IDE</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;" />
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Estilos personalizados -->
     <link href="./css/styles.css" rel="stylesheet">
+
+    
 </head>
 <body class="light-mode">
     <!-- Barra de herramientas -->
-    <header class="shadow-sm">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center py-1">
-                <!-- Botones de archivo -->
-                <div>
-                    <button class="btn btn-outline-light me-2">
-                        <i class="fas fa-folder-open"></i>
-                    </button>
-                    <button class="btn btn-outline-light me-2">
-                        <i class="fas fa-save"></i>
-                    </button>
-                    <button class="btn btn-outline-light me-2">
-                        <i class="fas fa-pencil"></i>
-                    </button>
-                </div>
+<header class="shadow-sm">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center py-1">
+            <!-- Botones de archivo y edidcion -->
+            <div>
+                <button id="btn-open" class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Abrir archivo">
+                    <i class="fas fa-folder-open"></i>
+                </button>
+                <button id="btn-save" class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Guardar archivo">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button id="btn-save-as" class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Guardar como">
+                    <i class="fas fa-pencil"></i>
+                </button>
+                <button id="btn-undo" class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Deshacer">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button id="btn-redo" class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Rehacer">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
 
-                <!-- Botones de compilación -->
-                <div>
-                    <button class="btn btn-outline-light me-2">
-                        <i class="fas fa-cogs"></i>
-                    </button>
-                    <button class="btn btn-outline-light me-2">
-                        <i class="fas fa-play"></i>
-                    </button>
-                </div>
+            <!-- Botones de compilación -->
+            <div>
+                <button class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Compilar">
+                    <i class="fas fa-cogs"></i>
+                </button>
+                <button class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Ejecutar">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
 
-                <!-- Botones de tema -->
-                <div>
-                    <button id="toggle-dark-mode" class="btn btn-outline-light me-2">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </div>
+            <!-- Botones de tema -->
+            <div>
+                <button id="toggle-dark-mode" class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Cambiar a modo oscuro">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- Área de trabajo -->
     <main class="container-fluid mt-3">
         <div class="row">
             <!-- Frame para el código -->
             <div class="col-md-9">
-                <textarea id="editor" class="form-control h-100" placeholder="Escribe tu código aquí..." rows="20"></textarea>
+                <div id="editor" class="h-100" placeholder="// Escribe tu codigo aqui"></div>
             </div>
 
             <!-- Pestañas de análisis -->
@@ -80,6 +88,13 @@
             </div>
         </div>
 
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between">
+            <span id="cursor-position">Línea: 1, Columna: 1</span>
+            <span id="total-lines">Total líneas: 1</span>
+        </div>
+    </div>
+
         <!-- Frame para los logs -->
         <div class="row mt-3">
             <div class="col-12">
@@ -88,11 +103,16 @@
         </div>
     </main>
 
-
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <!-- CodeMirror JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <!-- Tema oscuro de CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
     <!-- Bootstrap JS (con Popper.js y jQuery) -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <!-- Tu archivo JS -->
+    <!-- Archivo JS -->
     <script src="./js/renderer.js"></script>
     <script src="./js/compile.js"></script>
 </body>

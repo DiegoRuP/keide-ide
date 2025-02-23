@@ -157,3 +157,11 @@ body.dark-mode .tab-content {
 .tab-pane {
     padding: 20px;
 }
+
+/* Estilos personalizados para los tooltips */
+.tooltip-inner {
+    background-color: #505050;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+}
