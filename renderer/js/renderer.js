@@ -23,10 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
         lineNumbers: true, // Mostrar números de línea
         mode: "javascript", // Modo de sintaxis (puedes cambiarlo según el lenguaje)
         theme: "default", // Tema inicial (claro)
-        lineWrapping: true, // Ajuste de líneas
+        lineWrapping: false, // Ajuste de líneas
         indentUnit: 4, // Tabulación de 4 espacios
         tabSize: 4,
         autofocus: true, // Enfocar automáticamente
+        scrollbarStyle: "native", // Usar scrollbars nativos
+        autorefresh: true, // Refrescar automáticamente
     });
 
     // Función para cambiar el tema de CodeMirror
