@@ -160,6 +160,72 @@ body.dark-mode .tab-content {
     white-space: nowrap; /* Evitar que el texto se divida en varias líneas */
 }
 
+/* Estilos para las pestañas de logs */
+.nav-tabs {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-radius: 5px 5px 0 0;
+    padding: 10px 20px;
+    background-color: #F8F9FA; /* Fondo claro */
+    color: #333; /* Texto claro */
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #5e5e5e;
+    color: #FFF;
+    border-color: #5e5e5e;
+    border-bottom: 2px solid #5e5e5e;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #5e5e5e;
+    color: white;
+}
+
+/* Estilos para el dark-mode */
+body.dark-mode .nav-tabs .nav-link {
+    background-color: #1E1E1E; /* Fondo oscuro */
+    color: #E0E0E0; /* Texto claro */
+    border-color: #292929;
+}
+
+body.dark-mode .nav-tabs .nav-link.active {
+    background-color: #333; /* Fondo activo */
+    color: #E0E0E0;
+    border-color: #292929;
+    border-bottom: 2px solid #292929; /* Fondo inferior */
+}
+
+body.dark-mode .nav-tabs .nav-link:hover {
+    background-color: #333;
+    color: white;
+}
+
+/* Estilos para el contenido de las pestañas */
+.tab-content {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-top: none;
+    background-color: #f8f9fa; /* Fondo claro */
+}
+
+body.dark-mode .tab-content {
+    background-color: #333; /* Fondo oscuro */
+    color: #E0E0E0; /* Texto claro */
+    border-color: #292929;
+}
+
+.tab-pane {
+    padding: 20px;
+}
+
 /* Reducir el margen entre los botones */
 .me-2 {
     margin-right: 0.25rem !important; /* Reducir el margen derecho */
