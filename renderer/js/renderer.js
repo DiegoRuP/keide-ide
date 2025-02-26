@@ -50,6 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
         editor.setValue(content);
     }
 
+    // Botón: Abrir archivo del menú
+    document.getElementById('btn-open-menu').addEventListener('click', async () => {
+        try {
+            const result = await window.fileAPI.openFile();
+            if (result) {
+                currentFilePath = result.filePath;
+                setEditorContent(result.content); // Usar CodeMirror para establecer el contenido
+            }
+        } catch (error) {
+            console.error('Error al abrir el archivo:', error);
+        }
+    });
+
     // Botón: Abrir archivo
     document.getElementById('btn-open').addEventListener('click', async () => {
         try {
@@ -60,6 +73,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error al abrir el archivo:', error);
+        }
+    });
+
+    // Botón: Guardar archivo del menú
+    document.getElementById('btn-save-menu').addEventListener('click', async () => {
+        try {
+            const content = getEditorContent(); // Usar CodeMirror para obtener el contenido
+            if (!currentFilePath) {
+                const newFilePath = await window.fileAPI.saveFile(content);
+                if (newFilePath) {
+                    currentFilePath = newFilePath;
+                }
+            } else {
+                await window.fileAPI.saveFile(content, currentFilePath);
+            }
+        } catch (error) {
+            console.error('Error al guardar el archivo:', error);
         }
     });
 
@@ -80,6 +110,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Botón: Guardar como del menú
+    document.getElementById('btn-save-as-menu').addEventListener('click', async () => {
+        try {
+            const content = getEditorContent(); // Usar CodeMirror para obtener el contenido
+            const newFilePath = await window.fileAPI.saveFileAs(content);
+            if (newFilePath) {
+                currentFilePath = newFilePath;
+            }
+        } catch (error) {
+            console.error('Error al guardar como:', error);
+        }
+    });
+
     // Botón: Guardar como
     document.getElementById('btn-save-as').addEventListener('click', async () => {
         try {
@@ -91,6 +134,30 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error al guardar como:', error);
         }
+    });
+
+    // Botón: Nuevo archivo
+    document.getElementById('btn-blank').addEventListener('click', () => {
+        currentFilePath = null;
+        setEditorContent('');
+    });
+
+    // Botón: Nuevo archivo del menú
+    document.getElementById('btn-blank-menu').addEventListener('click', () => {
+        currentFilePath = null;
+        setEditorContent('');
+    });
+
+    //Botón: Cerrar archivo
+    document.getElementById('btn-close').addEventListener('click', () => {
+        currentFilePath = null;
+        setEditorContent('');
+    });
+
+    // Botón: Cerrar archivo del menú
+    document.getElementById('btn-close-menu').addEventListener('click', () => {
+        currentFilePath = null;
+        setEditorContent('');
     });
 
     // Cambiar el tema de CodeMirror al cargar la página
@@ -107,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-redo').addEventListener('click', () => {
         editor.redo();
     });
-
 
     // Actualizar la posición del cursor y el número de líneas
     editor.on('cursorActivity', () => {

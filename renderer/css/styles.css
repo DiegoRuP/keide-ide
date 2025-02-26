@@ -231,3 +231,11 @@ body.dark-mode .tab-content {
     margin-right: 0.25rem !important; /* Reducir el margen derecho */
 }
 
+.CodeMirror {
+    max-height: 100%;
+}
+
+.btn-outline-light{
+    border: none;
+    border-bottom: #5e5e5e 1px solid !important;
+}
