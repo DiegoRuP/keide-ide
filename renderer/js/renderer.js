@@ -241,14 +241,39 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('cursor-position').textContent = `Línea: ${cursor.line + 1}, Columna: ${cursor.ch + 1}`;
         document.getElementById('total-lines').textContent = `Total líneas: ${editor.lineCount()}`;
     });
-});
 
-document.addEventListener("DOMContentLoaded", () => {
     let tabCount = 1; // Contador de pestañas
-
     const tabList = document.getElementById("tab-list");
-    const tabContent = document.getElementById("tab-content");
+    const editorContainer = document.getElementById("editor");
     const btnNew = document.getElementById("btn-blank"); // Botón de nueva pestaña
+
+    // Objeto para almacenar las instancias de CodeMirror y su contenido
+    const editors = {};
+
+    // Función para inicializar CodeMirror en un contenedor específico
+    function initializeCodeMirror(container) {
+        return CodeMirror(container, {
+            lineNumbers: true,
+            theme: "dracula",
+            value: "// Escribe tu código aquí"
+        });
+    }
+
+    // Crear la primera pestaña y su CodeMirror
+    const firstTabId = `tab-1`;
+    const firstEditorId = `editor-1`;
+
+    const firstTab = document.createElement("li");
+    firstTab.className = "nav-item";
+    tabList.appendChild(firstTab);
+
+    const firstEditorWrapper = document.createElement("div");
+    firstEditorWrapper.id = firstEditorId;
+    firstEditorWrapper.classList.add("code-container");
+    editorContainer.appendChild(firstEditorWrapper);
+
+    const firstEditor = initializeCodeMirror(firstEditorWrapper);
+    editors[firstEditorId] = firstEditor;
 
     // Crear nueva pestaña
     btnNew.addEventListener("click", () => {
@@ -266,10 +291,79 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         tabList.appendChild(newTab);
 
+        // Crear un nuevo contenedor para CodeMirror
+        const newEditorWrapper = document.createElement("div");
+        newEditorWrapper.id = editorId;
+        newEditorWrapper.classList.add("code-container");
+        editorContainer.appendChild(newEditorWrapper);
+
+        // Inicializar CodeMirror en el nuevo contenedor
+        const newEditor = initializeCodeMirror(newEditorWrapper);
+        editors[editorId] = newEditor;
+
+        // Ocultar todos los contenedores de CodeMirror
+        document.querySelectorAll(".code-container").forEach(container => {
+            container.style.display = "none";
+        });
+
+        // Mostrar el contenedor de CodeMirror correspondiente a la pestaña activa
+        newEditorWrapper.style.display = "block";
+
         // Activar nueva pestaña
         document.getElementById(tabId).click();
         addCloseEvent();
     });
 
+    // Manejar el cambio de pestañas
+    tabList.addEventListener("click", (event) => {
+        const tabButton = event.target.closest(".nav-link");
+        if (tabButton) {
+            const editorId = tabButton.getAttribute("data-bs-target").replace("#", "");
+            // Ocultar todos los contenedores de CodeMirror
+            document.querySelectorAll(".code-container").forEach(container => {
+                container.style.display = "none";
+            });
+            // Mostrar el contenedor de CodeMirror correspondiente a la pestaña activa
+            const activeEditorWrapper = document.getElementById(editorId);
+            if (activeEditorWrapper) {
+                activeEditorWrapper.style.display = "block";
+            }
+        }
+    });
+
+    // Función para agregar el evento de cerrar pestaña
+    function addCloseEvent() {
+        document.querySelectorAll(".close-tab").forEach(closeButton => {
+            closeButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                const tabId = closeButton.getAttribute("data-id");
+                const tabButton = document.getElementById(`tab-${tabId}`);
+                const editorId = `editor-${tabId}`;
+
+                // Verificar si el botón de la pestaña existe antes de intentar eliminarlo
+                if (tabButton) {
+                    // Eliminar la pestaña
+                    tabButton.closest(".nav-item").remove();
+                }
+
+                // Eliminar el contenedor de CodeMirror
+                const editorWrapperToRemove = document.getElementById(editorId);
+                if (editorWrapperToRemove) {
+                    editorWrapperToRemove.remove();
+                }
+
+                // Eliminar la instancia de CodeMirror del objeto `editors`
+                delete editors[editorId];
+
+                // Si no hay más pestañas, crear una nueva
+                if (tabList.children.length === 0) {
+                    btnNew.click();
+                }
+            });
+        });
+    }
+
     addCloseEvent();
+
 });
+
