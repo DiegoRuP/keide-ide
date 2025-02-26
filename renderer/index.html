@@ -138,52 +138,56 @@
 
     <!-- Área de trabajo -->
     <main class="container-fluid mt-3">
-        <div class="row">
+        <div class="row flex-nowrap h-90">
 
-        <!-- Contenedor de pestañas -->
-        <ul class="nav nav-tabs" id="tab-list" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="tab-1" data-bs-toggle="tab" data-bs-target="#editor-1" type="button" role="tab">
-                    Sin título 1 <span class="close-tab" data-id="1">&times;</span>
-                </button>
-            </li>
-        </ul>
+            <div class="col-md-9 h-90 resize-container"> <!-- Added resize-container -->
 
-            <!-- Frame para el código -->
-            <div class="col-md-9 h-90">
-                <div id="editor" class="h-100" placeholder="// Escribe tu codigo aqui"></div>
-            </div>
+                <!-- Contenedor de pestañas -->
+                <ul class="nav nav-tabs" id="tab-list" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-1" data-bs-toggle="tab" data-bs-target="#editor-1" type="button" role="tab">
+                            Sin título 1 <span class="close-tab" data-id="1">&times;</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Frame para el código -->
+                    <div id="editor" class="h-100" placeholder="// Escribe tu codigo aqui"></div>
+                
+                    <!-- Resize handle -->
+                    <div class="resize-handle"></div>
+                </div>
 
             <!-- Pestañas de análisis -->
-            <div class="col-md-3">
-                <div class="nav nav-pills flex-column">
-                    <button class="nav-link active" id="lexico-tab" data-bs-toggle="pill" data-bs-target="#lexico">Análisis Léxico</button>
-                    <button class="nav-link" id="sintactico-tab" data-bs-toggle="pill" data-bs-target="#sintactico">Análisis Sintáctico</button>
-                    <button class="nav-link" id="semantico-tab" data-bs-toggle="pill" data-bs-target="#semantico">Análisis Semántico</button>
-                    <button class="nav-link" id="objeto-tab" data-bs-toggle="pill" data-bs-target="#objeto">Análisis Intermedio</button>
-                    <button class="nav-link" id="hashtable-tab" data-bs-toggle="pill" data-bs-target="#hashtable">Hash Table</button>
-                </div>
+            <div class="col-md-3 h-90 resize-container">
+                    <div class="nav nav-pills flex-column">
+                        <button class="nav-link active" id="lexico-tab" data-bs-toggle="pill" data-bs-target="#lexico">Análisis Léxico</button>
+                        <button class="nav-link" id="sintactico-tab" data-bs-toggle="pill" data-bs-target="#sintactico">Análisis Sintáctico</button>
+                        <button class="nav-link" id="semantico-tab" data-bs-toggle="pill" data-bs-target="#semantico">Análisis Semántico</button>
+                        <button class="nav-link" id="objeto-tab" data-bs-toggle="pill" data-bs-target="#objeto">Análisis Intermedio</button>
+                        <button class="nav-link" id="hashtable-tab" data-bs-toggle="pill" data-bs-target="#hashtable">Hash Table</button>
+                    </div>
 
-                <!-- Contenido de las pestañas -->
-                <div class="tab-content mt-3">
-                    <div class="tab-pane fade show active" id="lexico">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus dolorum eius explicabo reprehenderit, laborum voluptates? Exercitationem maiores natus reiciendis tempora nemo consectetur qui, expedita adipisci impedit dignissimos praesentium inventore perspiciatis.
-                    </div>
-                    <div class="tab-pane fade" id="sintactico">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Placeat doloribus fuga fugiat soluta doloremque modi quo, natus, culpa consequuntur ducimus voluptatem earum accusantium, explicabo cumque animi! Eum hic temporibus nihil.
-                    </div>
-                    <div class="tab-pane fade" id="semantico">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quasi alias accusantium cum amet hic dolores minima mollitia facere voluptatem! Suscipit atque dicta iste deserunt. Adipisci voluptatem repellendus amet illo nostrum.
-                    </div>
-                    <div class="tab-pane fade" id="objeto">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quasi alias accusantium cum amet hic dolores minima mollitia facere voluptatem! Suscipit atque dicta iste deserunt. Adipisci voluptatem repellendus amet illo nostrum.
-                    </div>
-                    <div class="tab-pane fade" id="hashtable">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quasi alias accusantium cum amet hic dolores minima mollitia facere voluptatem! Suscipit atque dicta iste deserunt. Adipisci voluptatem repellendus amet illo nostrum.
+                    <!-- Contenido de las pestañas -->
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="lexico">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus dolorum eius explicabo reprehenderit, laborum voluptates? Exercitationem maiores natus reiciendis tempora nemo consectetur qui, expedita adipisci impedit dignissimos praesentium inventore perspiciatis.
+                        </div>
+                        <div class="tab-pane fade" id="sintactico">
+                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Placeat doloribus fuga fugiat soluta doloremque modi quo, natus, culpa consequuntur ducimus voluptatem earum accusantium, explicabo cumque animi! Eum hic temporibus nihil.
+                        </div>
+                        <div class="tab-pane fade" id="semantico">
+                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quasi alias accusantium cum amet hic dolores minima mollitia facere voluptatem! Suscipit atque dicta iste deserunt. Adipisci voluptatem repellendus amet illo nostrum.
+                        </div>
+                        <div class="tab-pane fade" id="objeto">
+                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quasi alias accusantium cum amet hic dolores minima mollitia facere voluptatem! Suscipit atque dicta iste deserunt. Adipisci voluptatem repellendus amet illo nostrum.
+                        </div>
+                        <div class="tab-pane fade" id="hashtable">
+                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quasi alias accusantium cum amet hic dolores minima mollitia facere voluptatem! Suscipit atque dicta iste deserunt. Adipisci voluptatem repellendus amet illo nostrum.
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
     <div class="container-fluid">
         <div class="d-flex justify-content-between">
@@ -193,8 +197,10 @@
     </div>
 
         <!-- Frame para los logs -->
-        <div class="row mt-3">
+        <div class="row resize-container-vertical">
+            <div class="resize-handle-horizontal"></div>
             <div class="col-12">
+                
                 <!-- Pestañas para los resultados y errores -->
                 <ul class="nav nav-tabs" id="logsTabs" role="tablist">
                     <li class="nav-item" role="presentation">

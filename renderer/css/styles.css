@@ -231,11 +231,102 @@ body.dark-mode .tab-content {
     margin-right: 0.25rem !important; /* Reducir el margen derecho */
 }
 
-.CodeMirror {
-    max-height: 100%;
-}
-
 .btn-outline-light{
     border: none;
     border-bottom: #5e5e5e 1px solid !important;
+}
+
+/* Resizable containers */
+.resize-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.resize-handle {
+    width: 8px;
+    cursor: col-resize;
+    background-color: #ddd;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -4px;
+    z-index: 1;
+    transition: background-color 0.2s;
+}
+
+.resize-handle:hover {
+    background-color: #5e5e5e;
+}
+
+body.dark-mode .resize-handle {
+    background-color: #333;
+}
+
+body.dark-mode .resize-handle:hover {
+    background-color: #666;
+}
+
+/* Flexible layout */
+.flex-nowrap {
+    flex-wrap: nowrap !important;
+}
+
+.h-90 {
+    height: 70vh;
+}
+
+/* CodeMirror adjustments */
+.CodeMirror {
+    height: calc(100% - 40px) !important; /* Account for tab height */
+    width: 100% !important;
+}
+
+/* Replace existing .col-md-9 and .col-md-3 styles with: */
+.col-md-9, .col-md-3 {
+    height: 100%;
+    position: relative;
+    transition: width 0.2s;
+}
+
+/* Resize handle horizontal */
+.resize-handle-horizontal {
+    height: 8px;
+    cursor: row-resize;
+    background-color: #ddd;
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    transition: background-color 0.2s;
+}
+
+.resize-handle-horizontal:hover {
+    background-color: #5e5e5e;
+}
+
+body.dark-mode .resize-handle-horizontal {
+    background-color: #333;
+}
+
+body.dark-mode .resize-handle-horizontal:hover {
+    background-color: #666;
+}
+
+.resize-container-vertical {
+    position: relative;
+    overflow: hidden;
+    height: 300px; /* Altura inicial */
+}
+
+/* Ajustes de layout principal */
+main {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px); /* Resta la altura del header */
+}
+
+.row.flex-nowrap {
+    flex: 1;
+    min-height: 0;
 }

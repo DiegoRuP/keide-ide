@@ -1,4 +1,64 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    const resizeHandle = document.querySelector('.resize-handle');
+    const leftPanel = document.querySelector('.col-md-9');
+    const rightPanel = document.querySelector('.col-md-3');
+    let isResizing = false;
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.body.classList.add('resizing');
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        
+        const container = leftPanel.parentElement;
+        const containerRect = container.getBoundingClientRect();
+        const percent = (e.clientX - containerRect.left) / containerRect.width * 100;
+        
+        leftPanel.style.width = `calc(${percent}% - 4px)`;
+        rightPanel.style.width = `calc(${100 - percent}% - 4px)`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        isResizing = false;
+        document.body.classList.remove('resizing');
+    });
+
+    // Resize horizontal para los logs
+    const hResizeHandle = document.querySelector('.resize-handle-horizontal');
+    const editorAnalysisContainer = document.querySelector('.row.flex-nowrap');
+    const logsContainer = document.querySelector('.resize-container-vertical');
+    let isHResizing = false;
+
+    hResizeHandle.addEventListener('mousedown', (e) => {
+        isHResizing = true;
+        document.body.classList.add('resizing-horizontal');
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isHResizing) return;
+        
+        const container = document.querySelector('main');
+        const containerRect = container.getBoundingClientRect();
+        const newHeight = containerRect.bottom - e.clientY - 60; /* Ajuste para el header */
+        
+        logsContainer.style.height = `${newHeight}px`;
+        editorAnalysisContainer.style.height = `calc(100% - ${newHeight}px)`;
+        editor.refresh();
+    });
+
+    document.addEventListener('mouseup', () => {
+        isHResizing = false;
+        document.body.classList.remove('resizing-horizontal');
+    });
+
+    // Handle editor resize
+    window.addEventListener('resize', () => {
+        editor?.refresh();
+    });
+
     // Cambiar entre modo oscuro y claro
     document.getElementById('toggle-dark-mode').addEventListener('click', async () => {
         const isDarkMode = await window.darkMode.toggle();
