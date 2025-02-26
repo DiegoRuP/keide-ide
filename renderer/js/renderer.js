@@ -182,3 +182,34 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('total-lines').textContent = `Total líneas: ${editor.lineCount()}`;
     });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    let tabCount = 1; // Contador de pestañas
+
+    const tabList = document.getElementById("tab-list");
+    const tabContent = document.getElementById("tab-content");
+    const btnNew = document.getElementById("btn-blank"); // Botón de nueva pestaña
+
+    // Crear nueva pestaña
+    btnNew.addEventListener("click", () => {
+        tabCount++;
+        const tabId = `tab-${tabCount}`;
+        const editorId = `editor-${tabCount}`;
+
+        // Crear pestaña
+        const newTab = document.createElement("li");
+        newTab.className = "nav-item";
+        newTab.innerHTML = `
+            <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${editorId}" type="button" role="tab">
+                Sin título ${tabCount} <span class="close-tab" data-id="${tabCount}">&times;</span>
+            </button>
+        `;
+        tabList.appendChild(newTab);
+
+        // Activar nueva pestaña
+        document.getElementById(tabId).click();
+        addCloseEvent();
+    });
+
+    addCloseEvent();
+});

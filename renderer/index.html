@@ -134,9 +134,21 @@
     </div>
 </header>
 
+
+
     <!-- Área de trabajo -->
     <main class="container-fluid mt-3">
         <div class="row">
+
+        <!-- Contenedor de pestañas -->
+        <ul class="nav nav-tabs" id="tab-list" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-1" data-bs-toggle="tab" data-bs-target="#editor-1" type="button" role="tab">
+                    Sin título 1 <span class="close-tab" data-id="1">&times;</span>
+                </button>
+            </li>
+        </ul>
+
             <!-- Frame para el código -->
             <div class="col-md-9 h-90">
                 <div id="editor" class="h-100" placeholder="// Escribe tu codigo aqui"></div>
