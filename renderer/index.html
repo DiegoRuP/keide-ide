@@ -83,9 +83,15 @@
 
             <!-- Botones de compilación -->
             <div class="d-none d-md-flex align-items-center">
-                <button class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Compilar">
+                <button id="compilar-btn" class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Compilar">
                     <i class="fas fa-cogs"></i>
                 </button>
+
+                <div id="loading-indicator" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;">
+                    <i class="fas fa-spinner fa-spin"></i> Compilando...
+                </div>
+
+
                 <button class="btn btn-outline-light me-2" data-bs-toggle="tooltip" title="Ejecutar">
                     <i class="fas fa-play"></i>
                 </button>
@@ -123,7 +129,7 @@
                 <button id="btn-redo-wrap" class="btn btn-outline-light my-1">
                     <i class="fas fa-redo me-2"></i> Rehacer
                 </button>
-                <button class="btn btn-outline-light my-1">
+                <button id="compilar-btn" class="btn btn-outline-light my-1">
                     <i class="fas fa-cogs me-2"></i> Compilar
                 </button>
                 <button class="btn btn-outline-light my-1">
@@ -248,5 +254,18 @@
     <!-- Archivo JS -->
     <script src="./js/renderer.js"></script>
     <script src="./js/compile.js"></script>
+
+    <!-- PRUEBASS -->
+    <script>
+        setTimeout(() => {
+          console.log('--- Diagnóstico del editor ---');
+          console.log('window.editor existe:', !!window.editor);
+          if (window.editor) {
+            console.log('window.editor.getValue es una función:', typeof window.editor.getValue === 'function');
+          }
+          console.log('CodeMirror en DOM:', !!document.querySelector('.CodeMirror'));
+        }, 2000);
+        </script>
+
 </body>
 </html>

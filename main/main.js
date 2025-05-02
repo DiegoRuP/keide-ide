@@ -1,7 +1,25 @@
-const { app, BrowserWindow, ipcMain, dialog, nativeTheme } = require('electron'); // Importa nativeTheme
+const { app, BrowserWindow, ipcMain, dialog, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const fsPromises = fs.promises;
+const os = require('os');
+
+const pythonHandlerPath = path.join(__dirname, 'modules', 'python-handler.js');
+let pythonHandler;
+
+try {
+    pythonHandler = require(pythonHandlerPath);
+    console.log('Módulo Python Handler cargado correctamente en el proceso principal');
+} catch (error) {
+    console.error('Error al cargar el módulo Python Handler:', error);
+    // Implementación simulada en caso de error
+    pythonHandler = {
+        compilar: (code, callback) => {
+            callback({
+                error: 'No se pudo cargar el módulo Python Handler: ' + error.message
+            });
+        }
+    };
+}
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -15,6 +33,9 @@ function createWindow() {
     });
 
     win.loadFile(path.join(__dirname, '../renderer/index.html'));
+    
+    // Opcionalmente, abrir DevTools para depuración
+    // win.webContents.openDevTools();
 }
 
 // Manejar el cambio de tema oscuro/claro
@@ -69,6 +90,36 @@ ipcMain.handle('dialog:saveFileAs', async (event, content) => {
         return filePath;
     }
     return null;
+});
+
+// Manejar la compilación de Python 
+ipcMain.handle('python:compile', async (event, code) => {
+    // Esta función convierte la API basada en callbacks a una Promise
+    return new Promise((resolve, reject) => {
+        try {
+            pythonHandler.compilar(code, (result) => {
+                if (result.error) {
+                    // Devolvemos el error como un objeto estructurado, no como una excepción
+                    resolve({ 
+                        success: false, 
+                        error: result.error, 
+                        raw: result.raw || null 
+                    });
+                } else {
+                    resolve({ 
+                        success: true, 
+                        ...result 
+                    });
+                }
+            });
+        } catch (error) {
+            // Si hay una excepción en el proceso, la devolvemos estructurada
+            resolve({ 
+                success: false, 
+                error: `Error al ejecutar el compilador: ${error.message}` 
+            });
+        }
+    });
 });
 
 app.whenReady().then(() => {

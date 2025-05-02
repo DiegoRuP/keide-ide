@@ -330,3 +330,46 @@ main {
     flex: 1;
     min-height: 0;
 }
+
+/* Estilos para tokens */
+.token {
+    padding: 4px;
+    margin: 2px;
+    border-radius: 3px;
+    font-family: monospace;
+    display: inline-block;
+}
+
+.token-type {
+    font-weight: bold;
+    color: #555;
+}
+
+.token-value {
+    color: #0066cc;
+}
+
+.token-position {
+    color: #888;
+    font-size: 0.8em;
+}
+
+/* Colores para diferentes tipos de tokens */
+.color1 { color: #164; }  /* Números */
+.color2 { color: #2196F3; }  /* Identificadores */
+.color3 { color: #999; }  /* Comentarios */
+.color4 { color: #f92672; font-weight: bold; }  /* Palabras reservadas */
+.color5 { color: #E91E63; }  /* Operadores aritméticos */
+.color6 { color: #9C27B0; }  /* Operadores relacionales/lógicos */
+.error { color: #f44336; font-weight: bold; }  /* Errores */
+
+/* Contenedor de resultados */
+#output-resultados {
+    background-color: #f8f9fa;
+    min-height: 100px;
+}
+
+/* Modo oscuro */
+.dark-mode #output-resultados {
+    background-color: #2d2d2d;
+}

@@ -10,7 +10,10 @@ contextBridge.exposeInMainWorld('fileAPI', {
     saveFileAs: (content) => ipcRenderer.invoke('dialog:saveFileAs', content),
 });
 
-// Exponer require si es necesario
 contextBridge.exposeInMainWorld('nodeAPI', {
     require: (module) => require(module),
+});
+
+contextBridge.exposeInMainWorld('compilerAPI', {
+    compile: (code) => ipcRenderer.invoke('python:compile', code)
 });
