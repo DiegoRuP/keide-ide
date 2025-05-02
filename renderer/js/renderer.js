@@ -117,6 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('Editor de código inicializado y expuesto como window.editor');
 
+    // Función para abrir el archivo
+    const setEditorContent = (content) => {
+        editor.setValue(content);
+    }
 
     // Botón: Abrir archivo del menú
     document.getElementById('btn-open-menu').addEventListener('click', async () => {
@@ -147,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botón: Guardar archivo del menú
     document.getElementById('btn-save-menu').addEventListener('click', async () => {
         try {
-            const content = getEditorContent(); // Usar CodeMirror para obtener el contenido
+            const content = window.editorFunctions.getEditorContent(); // Usar CodeMirror para obtener el contenido
             if (!currentFilePath) {
                 const newFilePath = await window.fileAPI.saveFile(content);
                 if (newFilePath) {
@@ -164,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botón: Guardar archivo
     document.getElementById('btn-save').addEventListener('click', async () => {
         try {
-            const content = getEditorContent(); // Usar CodeMirror para obtener el contenido
+            const content = window.editorFunctions.getEditorContent(); // Usar CodeMirror para obtener el contenido
             if (!currentFilePath) {
                 const newFilePath = await window.fileAPI.saveFile(content);
                 if (newFilePath) {
@@ -181,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botón: Guardar como del menú
     document.getElementById('btn-save-as-menu').addEventListener('click', async () => {
         try {
-            const content = getEditorContent(); // Usar CodeMirror para obtener el contenido
+            const content = window.editorFunctions.getEditorContent(); // Usar CodeMirror para obtener el contenido
             const newFilePath = await window.fileAPI.saveFileAs(content);
             if (newFilePath) {
                 currentFilePath = newFilePath;
@@ -194,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botón: Guardar como
     document.getElementById('btn-save-as').addEventListener('click', async () => {
         try {
-            const content = getEditorContent(); // Usar CodeMirror para obtener el contenido
+            const content = window.editorFunctions.getEditorContent(); // Usar CodeMirror para obtener el contenido
             const newFilePath = await window.fileAPI.saveFileAs(content);
             if (newFilePath) {
                 currentFilePath = newFilePath;
@@ -247,131 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.on('cursorActivity', () => {
         const cursor = editor.getCursor();
         document.getElementById('cursor-position').textContent = `Línea: ${cursor.line + 1}, Columna: ${cursor.ch + 1}`;
-        document.getElementById('total-lines').textContent = `Total líneas: ${editor.lineCount()}`;
+        document.getElementById('line-count').textContent = `Líneas: ${editor.lineCount()}`;
     });
 
-    // let tabCount = 1; // Contador de pestañas
-    // const tabList = document.getElementById("tab-list");
-    // const editorContainer = document.getElementById("editor");
-    // const btnNew = document.getElementById("btn-blank"); // Botón de nueva pestaña
-
-    // // Objeto para almacenar las instancias de CodeMirror y su contenido
-    // const editors = {};
-
-    // // Función para inicializar CodeMirror en un contenedor específico
-    // function initializeCodeMirror(container) {
-    //     return CodeMirror(container, {
-    //         lineNumbers: true,
-    //         theme: "dracula",
-    //         value: "// Escribe tu código aquí"
-    //     });
-    // }
-
-    // // Crear la primera pestaña y su CodeMirror
-    // const firstTabId = `tab-1`;
-    // const firstEditorId = `editor-1`;
-
-    // const firstTab = document.createElement("li");
-    // firstTab.className = "nav-item";
-    // tabList.appendChild(firstTab);
-
-    // const firstEditorWrapper = document.createElement("div");
-    // firstEditorWrapper.id = firstEditorId;
-    // firstEditorWrapper.classList.add("code-container");
-    // editorContainer.appendChild(firstEditorWrapper);
-
-    // const firstEditor = initializeCodeMirror(firstEditorWrapper);
-    // editors[firstEditorId] = firstEditor;
-
-    // // Crear nueva pestaña
-    // btnNew.addEventListener("click", () => {
-    //     tabCount++;
-    //     const tabId = `tab-${tabCount}`;
-    //     const editorId = `editor-${tabCount}`;
-
-    //     // Crear pestaña
-    //     const newTab = document.createElement("li");
-    //     newTab.className = "nav-item";
-    //     newTab.innerHTML = `
-    //         <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${editorId}" type="button" role="tab">
-    //             Sin título ${tabCount} <span class="close-tab" data-id="${tabCount}">&times;</span>
-    //         </button>
-    //     `;
-    //     tabList.appendChild(newTab);
-
-    //     // Crear un nuevo contenedor para CodeMirror
-    //     const newEditorWrapper = document.createElement("div");
-    //     newEditorWrapper.id = editorId;
-    //     newEditorWrapper.classList.add("code-container");
-    //     editorContainer.appendChild(newEditorWrapper);
-
-    //     // Inicializar CodeMirror en el nuevo contenedor
-    //     const newEditor = initializeCodeMirror(newEditorWrapper);
-    //     editors[editorId] = newEditor;
-
-    //     // Ocultar todos los contenedores de CodeMirror
-    //     document.querySelectorAll(".code-container").forEach(container => {
-    //         container.style.display = "none";
-    //     });
-
-    //     // Mostrar el contenedor de CodeMirror correspondiente a la pestaña activa
-    //     newEditorWrapper.style.display = "block";
-
-    //     // Activar nueva pestaña
-    //     document.getElementById(tabId).click();
-    //     addCloseEvent();
-    // });
-
-    // // Manejar el cambio de pestañas
-    // tabList.addEventListener("click", (event) => {
-    //     const tabButton = event.target.closest(".nav-link");
-    //     if (tabButton) {
-    //         const editorId = tabButton.getAttribute("data-bs-target").replace("#", "");
-    //         // Ocultar todos los contenedores de CodeMirror
-    //         document.querySelectorAll(".code-container").forEach(container => {
-    //             container.style.display = "none";
-    //         });
-    //         // Mostrar el contenedor de CodeMirror correspondiente a la pestaña activa
-    //         const activeEditorWrapper = document.getElementById(editorId);
-    //         if (activeEditorWrapper) {
-    //             activeEditorWrapper.style.display = "block";
-    //         }
-    //     }
-    // });
-
-    // // Función para agregar el evento de cerrar pestaña
-    // function addCloseEvent() {
-    //     document.querySelectorAll(".close-tab").forEach(closeButton => {
-    //         closeButton.addEventListener("click", (event) => {
-    //             event.stopPropagation();
-    //             const tabId = closeButton.getAttribute("data-id");
-    //             const tabButton = document.getElementById(`tab-${tabId}`);
-    //             const editorId = `editor-${tabId}`;
-
-    //             // Verificar si el botón de la pestaña existe antes de intentar eliminarlo
-    //             if (tabButton) {
-    //                 // Eliminar la pestaña
-    //                 tabButton.closest(".nav-item").remove();
-    //             }
-
-    //             // Eliminar el contenedor de CodeMirror
-    //             const editorWrapperToRemove = document.getElementById(editorId);
-    //             if (editorWrapperToRemove) {
-    //                 editorWrapperToRemove.remove();
-    //             }
-
-    //             // Eliminar la instancia de CodeMirror del objeto `editors`
-    //             delete editors[editorId];
-
-    //             // Si no hay más pestañas, crear una nueva
-    //             if (tabList.children.length === 0) {
-    //                 btnNew.click();
-    //             }
-    //         });
-    //     });
-    // }
-
-    // addCloseEvent();
-
 });
-

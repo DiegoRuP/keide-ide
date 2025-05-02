@@ -373,3 +373,28 @@ main {
 .dark-mode #output-resultados {
     background-color: #2d2d2d;
 }
+
+#output-resultados {
+    background-color: #f8f9fa;
+    min-height: 100px;
+    max-height: 300px; /* Altura máxima */
+    overflow-y: auto; /* Desplazamiento vertical */
+}
+
+body.dark-mode #output-resultados {
+    background-color: #2d2d2d;
+}
+
+.tab-content .tab-pane#lexico {
+    max-height: 300px; /* Ajusta la altura máxima según sea necesario */
+    overflow-y: auto;  /* Habilita el desplazamiento vertical */
+    padding: 10px;
+    background-color: #f8f9fa; /* Fondo claro */
+    border: 1px solid #ddd;
+}
+
+body.dark-mode .tab-content .tab-pane#lexico {
+    background-color: #333; /* Fondo oscuro */
+    color: #E0E0E0; /* Texto claro */
+    border-color: #292929;
+}
