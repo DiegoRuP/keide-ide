@@ -3,19 +3,20 @@ import sys
 import json
 from analizador_lexico import LexicalAnalyzer
 import traceback
+import os
+
+# Directorio donde se encuentra este archivo
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def main():
     try:
-        # Verificar argumentos
         if len(sys.argv) < 2:
             print(json.dumps({'error': 'No se proporcionó archivo de entrada'}))
             return 1
 
-        # Leer el archivo de entrada
         with open(sys.argv[1], 'r') as f:
             codigo = f.read()
 
-        # Procesar el código
         resultado = compilar(codigo)
         print(resultado)
         return 0
@@ -31,25 +32,36 @@ def main():
 def compilar(codigo):
     analizador = LexicalAnalyzer()
     tokens, errores = analizador.analyze(codigo)
-    
-    tokens_serializados = [
-        {
-            'type': token.type.name,
-            'value': token.value,
-            'line': token.line,
-            'column': token.column
-        } for token in tokens
-    ]
-    
-    mensajes_error = [
-        f"Error léxico en línea {error.line}, columna {error.column}: Carácter no reconocido '{error.value}'"
-        for error in errores
-    ]
-    
+
+    # Guardar tokens en archivo
+    with open(os.path.join(BASE_DIR, "tokens.txt"), "w", encoding="utf-8") as f:
+        for token in tokens:
+            f.write(str(token) + "\n")
+
+    # Guardar errores en archivo
+    with open(os.path.join(BASE_DIR, "errores.txt"), "w", encoding="utf-8") as f:
+        for error in errores:
+            f.write(f"Error en línea {error.line}, columna {error.column}: '{error.value}'\n")
+
+    # Guardar HTML coloreado
+    html_coloreado = analizador.generate_html(codigo)
+    with open(os.path.join(BASE_DIR, "salida.html"), "w", encoding="utf-8") as f:
+        f.write(html_coloreado)
+
     return json.dumps({
-        'tokens': tokens_serializados,
-        'errores': mensajes_error,
-        'html_coloreado': analizador.generate_html(codigo)
+        'tokens': [
+            {
+                'type': token.type.name,
+                'value': token.value,
+                'line': token.line,
+                'column': token.column
+            } for token in tokens
+        ],
+        'errores': [
+            f"Error léxico en línea {e.line}, columna {e.column}: Carácter no reconocido '{e.value}'"
+            for e in errores
+        ],
+        'html_coloreado': html_coloreado
     })
 
 if __name__ == "__main__":
