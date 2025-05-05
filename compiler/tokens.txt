@@ -1,107 +1,75 @@
-Token(COMMENT, '// Prueba 2: Prueba de casos límite y detección de errores
+Token(COMMENT, '// Este es un comentario válido
 ', line 1, col 1)
-Token(COMMENT, '/* 
-   Esta prueba se centra en casos límite y errores:
-   - Comentarios sin cerrar
-   - Cadenas sin cerrar
-   - Caracteres no válidos
-   - Casos límite de sintaxis
-*/', line 2, col 1)
-Token(COMMENT, '// 1. Prueba de comentarios
-', line 10, col 1)
-Token(COMMENT, '// Comentario normal de una línea
-', line 11, col 1)
-Token(COMMENT, '/* Comentario 
-   multilínea
-   normal */', line 12, col 1)
-Token(COMMENT, '// Comentario multilínea sin cerrar (debe generar error)
-', line 16, col 1)
-Token(COMMENT, '/* Este comentario no se cierra correctamente
-   y debería generar un error de análisis léxico
+Token(COMMENT, '/* Este comentario no está cerrado
 
-// 2. Prueba de cadenas
-string cadena_normal = "Esta es una cadena correcta";
-string cadena_vacia = "";
-string cadena_con_espacios = "     ";
-string cadena_con_numeros = "123456";
-string cadena_con_simbolos = "!@#$%^&*()";
-
-// Cadena sin cerrar (debe generar error)
-string cadena_sin_cerrar = "Esta cadena no tiene cierre;
-
-// 3. Prueba de caracteres no válidos
-int a = 5;
-// Estos caracteres deberían generar errores
-@ # $ % ` ~ 
-
-// 4. Prueba de identificadores límite
-int _ = 1;        // Solo underscore
-int a123456789_123456789_123456789 = 2;  // Identificador muy largo
-
-// 5. Prueba de números límite
-int numero_grande = 999999999;
-float decimal_muchos_digitos = 1.234567890123456789;
-float decimal_solo_punto = 5.;
-
-// 6. Prueba de operadores consecutivos
-int a = 5 + + 3;  // Dos operadores + consecutivos
-int b = 5 - - 3;  // Dos operadores - consecutivos
-int c = 5 * * 3;  // Operadores * consecutivos (inválido)
-
-// 7. Prueba de saltos de línea en contextos inesperados
-int x = 
-5;
-
-if 
-(x > 3) {
-    x = 
-    x + 
-    1;
-}
-
-// 8. Prueba de espacios en blanco y tabulaciones
-int    espaciado    =    5   ;
-if		(x	>	0)	{		}
-
-// 9. Prueba de comentarios y strings con contenido especial
-// Comentario con símbolos: !@#$%^&*()_+-={}[]|\:;"'<>,.?/
-/* Comentario multilínea con 
-   símbolos: !@#$%^&*()_+-={}[]|\:;"'<>,.?/ */', line 17, col 1)
-Token(KEYWORD, 'string', line 68, col 1)
-Token(IDENTIFIER, 'cadena_especial', line 68, col 8)
-Token(ASSIGNMENT, '=', line 68, col 24)
-Token(STRING, '"Cadena con \"', line 68, col 26)
-Token(IDENTIFIER, 'comillas', line 68, col 40)
-Token(ERROR, '\', line 68, col 48)
-Token(STRING, '" internas"', line 68, col 49)
-Token(SYMBOL, ';', line 68, col 60)
-Token(COMMENT, '// 10. Prueba de comentarios anidados (no estándar en C/C++)
-', line 70, col 1)
-Token(COMMENT, '/* Comentario externo
-   /* Intento de comentario interno - esto generaría error en C/C++ */', line 71, col 1)
-Token(IDENTIFIER, 'Continuaci', line 73, col 4)
-Token(ERROR, 'ó', line 73, col 14)
-Token(IDENTIFIER, 'n', line 73, col 15)
-Token(IDENTIFIER, 'del', line 73, col 17)
-Token(IDENTIFIER, 'comentario', line 73, col 21)
-Token(IDENTIFIER, 'externo', line 73, col 32)
-Token(ARITHMETIC_OP, '*', line 73, col 40)
-Token(ARITHMETIC_OP, '/', line 73, col 41)
-Token(COMMENT, '// 11. Prueba de cadenas con saltos de línea (inválido)
-', line 75, col 1)
-Token(KEYWORD, 'string', line 76, col 1)
-Token(IDENTIFIER, 'cadena_con_salto', line 76, col 8)
-Token(ASSIGNMENT, '=', line 76, col 25)
-Token(UNCLOSED_STRING, '"Esta cadena tiene un salto de...', line 76, col 27)
-Token(ERROR, 'Cadena sin cerrar', line 76, col 27)
-Token(IDENTIFIER, 'y', line 77, col 1)
-Token(IDENTIFIER, 'deber', line 77, col 3)
-Token(ERROR, 'í', line 77, col 8)
-Token(IDENTIFIER, 'a', line 77, col 9)
-Token(IDENTIFIER, 'generar', line 77, col 11)
-Token(IDENTIFIER, 'un', line 77, col 19)
-Token(IDENTIFIER, 'error', line 77, col 22)
-Token(UNCLOSED_STRING, '";
-', line 77, col 27)
-Token(ERROR, 'Cadena sin cerrar', line 77, col 27)
-Token(COMMENT, '// Fin de la prueba 2', line 79, col 1)
+int main() { */', line 3, col 1)
+Token(IDENTIFIER, 'char', line 6, col 5)
+Token(ARITHMETIC_OP, '*', line 6, col 10)
+Token(IDENTIFIER, 'str', line 6, col 11)
+Token(ASSIGNMENT, '=', line 6, col 15)
+Token(UNCLOSED_STRING, '"Cadena sin cerrar;
+', line 6, col 17)
+Token(ERROR, 'Cadena sin cerrar', line 6, col 17)
+Token(KEYWORD, 'int', line 7, col 5)
+Token(IDENTIFIER, 'n', line 7, col 9)
+Token(ERROR, 'ú', line 7, col 10)
+Token(IDENTIFIER, 'mero', line 7, col 11)
+Token(ASSIGNMENT, '=', line 7, col 16)
+Token(NUMBER, '0123', line 7, col 18)
+Token(IDENTIFIER, 'abc', line 7, col 22)
+Token(SYMBOL, ';', line 7, col 25)
+Token(COMMENT, '// número mal escrito con letras
+', line 7, col 27)
+Token(KEYWORD, 'float', line 8, col 5)
+Token(IDENTIFIER, 'decimal', line 8, col 11)
+Token(ASSIGNMENT, '=', line 8, col 19)
+Token(NUMBER, '123.45', line 8, col 21)
+Token(ERROR, '.', line 8, col 27)
+Token(NUMBER, '67', line 8, col 28)
+Token(SYMBOL, ';', line 8, col 30)
+Token(COMMENT, '// número mal formado
+', line 8, col 32)
+Token(ERROR, '@', line 10, col 5)
+Token(COMMENT, '// carácter inválido
+', line 10, col 7)
+Token(ERROR, '$', line 11, col 5)
+Token(IDENTIFIER, 'variable', line 11, col 6)
+Token(ASSIGNMENT, '=', line 11, col 15)
+Token(NUMBER, '5', line 11, col 17)
+Token(SYMBOL, ';', line 11, col 18)
+Token(COMMENT, '// símbolo $ inválido en identificador
+', line 11, col 20)
+Token(KEYWORD, 'int', line 13, col 5)
+Token(IDENTIFIER, 'ifelse', line 13, col 9)
+Token(ASSIGNMENT, '=', line 13, col 16)
+Token(NUMBER, '10', line 13, col 18)
+Token(SYMBOL, ';', line 13, col 20)
+Token(COMMENT, '// identificador válido, pero confunde con palabra reservada
+', line 13, col 22)
+Token(KEYWORD, 'float', line 15, col 5)
+Token(NUMBER, '9', line 15, col 11)
+Token(IDENTIFIER, 'peso', line 15, col 12)
+Token(ASSIGNMENT, '=', line 15, col 17)
+Token(NUMBER, '100.0', line 15, col 19)
+Token(SYMBOL, ';', line 15, col 24)
+Token(COMMENT, '// identificador inválido (empieza con número)
+', line 15, col 26)
+Token(KEYWORD, 'string', line 16, col 5)
+Token(IDENTIFIER, 'mensaje', line 16, col 12)
+Token(ASSIGNMENT, '=', line 16, col 20)
+Token(UNCLOSED_STRING, '"Hola mundo; // cadena sin cer...', line 16, col 22)
+Token(ERROR, 'Cadena sin cerrar', line 16, col 22)
+Token(IDENTIFIER, 'whilee', line 18, col 5)
+Token(SYMBOL, '(', line 18, col 12)
+Token(IDENTIFIER, 'true', line 18, col 13)
+Token(SYMBOL, ')', line 18, col 17)
+Token(SYMBOL, '{', line 18, col 19)
+Token(COMMENT, '// "whilee" no es palabra reservada
+', line 18, col 21)
+Token(COMMENT, '// Código
+', line 19, col 9)
+Token(SYMBOL, '}', line 20, col 5)
+Token(KEYWORD, 'return', line 22, col 5)
+Token(NUMBER, '0', line 22, col 12)
+Token(SYMBOL, ';', line 22, col 13)
+Token(SYMBOL, '}', line 23, col 1)
