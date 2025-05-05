@@ -1,273 +1,107 @@
+Token(COMMENT, '// Prueba 2: Prueba de casos límite y detección de errores
+', line 1, col 1)
 Token(COMMENT, '/* 
-   Archivo de prueba para analizador léxico
-   Contiene una mezcla de código válido y errores intencionales
-*/', line 1, col 1)
-Token(KEYWORD, 'int', line 6, col 1)
-Token(KEYWORD, 'main', line 6, col 5)
-Token(SYMBOL, '(', line 6, col 9)
-Token(SYMBOL, ')', line 6, col 10)
-Token(SYMBOL, '{', line 6, col 12)
-Token(COMMENT, '// Declaración de variables
-', line 7, col 5)
-Token(KEYWORD, 'int', line 8, col 5)
-Token(IDENTIFIER, 'x', line 8, col 9)
-Token(ASSIGNMENT, '=', line 8, col 11)
-Token(NUMBER, '10', line 8, col 13)
-Token(SYMBOL, ';', line 8, col 15)
-Token(KEYWORD, 'float', line 9, col 5)
-Token(IDENTIFIER, 'y', line 9, col 11)
-Token(ASSIGNMENT, '=', line 9, col 13)
-Token(NUMBER, '3.14', line 9, col 15)
-Token(SYMBOL, ';', line 9, col 19)
-Token(KEYWORD, 'int', line 10, col 5)
-Token(ERROR, '@', line 10, col 9)
-Token(IDENTIFIER, 'variable_ilegal', line 10, col 10)
-Token(ASSIGNMENT, '=', line 10, col 26)
-Token(NUMBER, '5', line 10, col 28)
-Token(SYMBOL, ';', line 10, col 29)
-Token(COMMENT, '// Error: carácter no permitido @
-', line 10, col 32)
-Token(COMMENT, '// Operadores aritméticos
-', line 12, col 5)
-Token(IDENTIFIER, 'x', line 13, col 5)
-Token(ASSIGNMENT, '=', line 13, col 7)
-Token(IDENTIFIER, 'x', line 13, col 9)
-Token(ARITHMETIC_OP, '+', line 13, col 11)
-Token(NUMBER, '5', line 13, col 13)
-Token(SYMBOL, ';', line 13, col 14)
-Token(IDENTIFIER, 'y', line 14, col 5)
-Token(ASSIGNMENT, '=', line 14, col 7)
-Token(IDENTIFIER, 'y', line 14, col 9)
-Token(ARITHMETIC_OP, '*', line 14, col 11)
-Token(NUMBER, '2.0', line 14, col 13)
-Token(SYMBOL, ';', line 14, col 16)
-Token(KEYWORD, 'int', line 15, col 5)
-Token(IDENTIFIER, 'z', line 15, col 9)
-Token(ASSIGNMENT, '=', line 15, col 11)
-Token(IDENTIFIER, 'x', line 15, col 13)
-Token(ARITHMETIC_OP, '%', line 15, col 15)
-Token(NUMBER, '3', line 15, col 17)
-Token(SYMBOL, ';', line 15, col 18)
-Token(COMMENT, '// Errores de sintaxis con operadores
-', line 17, col 5)
-Token(KEYWORD, 'int', line 18, col 5)
-Token(IDENTIFIER, 'a', line 18, col 9)
-Token(ASSIGNMENT, '=', line 18, col 11)
-Token(NUMBER, '10', line 18, col 13)
-Token(ERROR, '$', line 18, col 16)
-Token(NUMBER, '5', line 18, col 18)
-Token(SYMBOL, ';', line 18, col 19)
-Token(COMMENT, '// Error: operador $ no reconocido
-', line 18, col 22)
-Token(KEYWORD, 'int', line 19, col 5)
-Token(IDENTIFIER, 'b', line 19, col 9)
-Token(ASSIGNMENT, '=', line 19, col 11)
-Token(NUMBER, '20', line 19, col 13)
-Token(ERROR, '#', line 19, col 16)
-Token(NUMBER, '3', line 19, col 18)
-Token(SYMBOL, ';', line 19, col 19)
-Token(COMMENT, '// Error: operador # no reconocido
-', line 19, col 22)
-Token(COMMENT, '// Operadores de bits y desplazamiento
-', line 21, col 5)
-Token(KEYWORD, 'int', line 22, col 5)
-Token(IDENTIFIER, 'bits', line 22, col 9)
-Token(ASSIGNMENT, '=', line 22, col 14)
-Token(NUMBER, '8', line 22, col 16)
-Token(BITWISE_OP, '<<', line 22, col 18)
-Token(NUMBER, '2', line 22, col 21)
-Token(SYMBOL, ';', line 22, col 22)
-Token(KEYWORD, 'int', line 23, col 5)
-Token(IDENTIFIER, 'mask', line 23, col 9)
-Token(ASSIGNMENT, '=', line 23, col 14)
-Token(IDENTIFIER, 'bits', line 23, col 16)
-Token(BITWISE_OP, '>>', line 23, col 21)
-Token(NUMBER, '1', line 23, col 24)
-Token(SYMBOL, ';', line 23, col 25)
-Token(COMMENT, '// Cadenas de texto con errores
-', line 25, col 5)
-Token(KEYWORD, 'cout', line 26, col 5)
-Token(BITWISE_OP, '<<', line 26, col 10)
-Token(STRING, '"Esta es una cadena válida"', line 26, col 13)
-Token(SYMBOL, ';', line 26, col 40)
-Token(KEYWORD, 'cout', line 27, col 5)
-Token(BITWISE_OP, '<<', line 27, col 10)
-Token(UNCLOSED_STRING, '"Esta cadena no tiene cierre;  // Error: cadena sin cerrar
-', line 27, col 13)
-Token(ERROR, 'Cadena sin cerrar', line 27, col 13)
-Token(KEYWORD, 'cout', line 28, col 5)
-Token(BITWISE_OP, '<<', line 28, col 10)
-Token(UNCLOSED_STRING, '"Esta es otra cadena sin cerrar
-', line 28, col 13)
-Token(ERROR, 'Cadena sin cerrar', line 28, col 13)
-Token(COMMENT, '// Comentarios con errores
-', line 30, col 5)
-Token(COMMENT, '// Este es un comentario válido
-', line 31, col 5)
-Token(COMMENT, '/* Este es un comentario multilínea
-       que cierra correctamente */', line 32, col 5)
-Token(COMMENT, '/* Este comentario no cierra y debería causar un error
-   porque no tiene el token de cierre *
-    
-    
-    int variablePerdida = 5;
-    
-    */', line 34, col 5)
-Token(COMMENT, '// Identificadores con errores
-', line 43, col 5)
-Token(KEYWORD, 'int', line 44, col 5)
-Token(NUMBER, '2', line 44, col 9)
-Token(IDENTIFIER, 'variable', line 44, col 10)
-Token(ASSIGNMENT, '=', line 44, col 19)
-Token(NUMBER, '5', line 44, col 21)
-Token(SYMBOL, ';', line 44, col 22)
-Token(COMMENT, '// Error: identificador que comienza con número
-', line 44, col 25)
-Token(KEYWORD, 'int', line 45, col 5)
-Token(IDENTIFIER, 'variable_v', line 45, col 9)
-Token(ERROR, 'á', line 45, col 19)
-Token(IDENTIFIER, 'lida', line 45, col 20)
-Token(ASSIGNMENT, '=', line 45, col 25)
-Token(NUMBER, '10', line 45, col 27)
-Token(SYMBOL, ';', line 45, col 29)
-Token(COMMENT, '// Caracteres no reconocidos
-', line 47, col 5)
-Token(KEYWORD, 'int', line 48, col 5)
-Token(IDENTIFIER, 'valor', line 48, col 9)
-Token(ASSIGNMENT, '=', line 48, col 15)
-Token(ERROR, '£', line 48, col 17)
-Token(NUMBER, '100', line 48, col 18)
-Token(SYMBOL, ';', line 48, col 21)
-Token(COMMENT, '// Error: símbolo de libra no reconocido
-', line 48, col 24)
-Token(KEYWORD, 'float', line 49, col 5)
-Token(IDENTIFIER, 'pi', line 49, col 11)
-Token(ASSIGNMENT, '=', line 49, col 14)
-Token(NUMBER, '3', line 49, col 16)
-Token(SYMBOL, ',', line 49, col 17)
-Token(NUMBER, '14', line 49, col 18)
-Token(SYMBOL, ';', line 49, col 20)
-Token(COMMENT, '// Error: coma en lugar de punto
-', line 49, col 24)
-Token(COMMENT, '// Operadores lógicos y relacionales
-', line 51, col 5)
-Token(KEYWORD, 'if', line 52, col 5)
-Token(SYMBOL, '(', line 52, col 8)
-Token(IDENTIFIER, 'x', line 52, col 9)
-Token(RELATIONAL_OP, '>', line 52, col 11)
-Token(IDENTIFIER, 'y', line 52, col 13)
-Token(LOGICAL_OP, '&&', line 52, col 15)
-Token(IDENTIFIER, 'z', line 52, col 18)
-Token(RELATIONAL_OP, '<=', line 52, col 20)
-Token(NUMBER, '5', line 52, col 23)
-Token(SYMBOL, ')', line 52, col 24)
-Token(SYMBOL, '{', line 52, col 26)
-Token(KEYWORD, 'cout', line 53, col 9)
-Token(BITWISE_OP, '<<', line 53, col 14)
-Token(STRING, '"Condición verdadera"', line 53, col 17)
-Token(SYMBOL, ';', line 53, col 38)
-Token(SYMBOL, '}', line 54, col 5)
-Token(COMMENT, '// Error en operador relacional
-', line 56, col 5)
-Token(KEYWORD, 'if', line 57, col 5)
-Token(SYMBOL, '(', line 57, col 8)
-Token(IDENTIFIER, 'x', line 57, col 9)
-Token(RELATIONAL_OP, '<=', line 57, col 11)
-Token(RELATIONAL_OP, '>', line 57, col 13)
-Token(IDENTIFIER, 'y', line 57, col 15)
-Token(SYMBOL, ')', line 57, col 16)
-Token(SYMBOL, '{', line 57, col 18)
-Token(COMMENT, '// Error: operador no reconocido <=>
-', line 57, col 21)
-Token(KEYWORD, 'cout', line 58, col 9)
-Token(BITWISE_OP, '<<', line 58, col 14)
-Token(STRING, '"Esto no debería compilar"', line 58, col 17)
-Token(SYMBOL, ';', line 58, col 43)
-Token(SYMBOL, '}', line 59, col 5)
-Token(COMMENT, '// Bucles y estructuras de control
-', line 61, col 5)
-Token(KEYWORD, 'for', line 62, col 5)
-Token(SYMBOL, '(', line 62, col 9)
-Token(KEYWORD, 'int', line 62, col 10)
-Token(IDENTIFIER, 'i', line 62, col 14)
-Token(ASSIGNMENT, '=', line 62, col 16)
-Token(NUMBER, '0', line 62, col 18)
-Token(SYMBOL, ';', line 62, col 19)
-Token(IDENTIFIER, 'i', line 62, col 21)
-Token(RELATIONAL_OP, '<', line 62, col 23)
-Token(NUMBER, '10', line 62, col 25)
-Token(SYMBOL, ';', line 62, col 27)
-Token(IDENTIFIER, 'i', line 62, col 29)
-Token(ARITHMETIC_OP, '++', line 62, col 30)
-Token(SYMBOL, ')', line 62, col 32)
-Token(SYMBOL, '{', line 62, col 34)
-Token(KEYWORD, 'if', line 63, col 9)
-Token(SYMBOL, '(', line 63, col 12)
-Token(IDENTIFIER, 'i', line 63, col 13)
-Token(ARITHMETIC_OP, '%', line 63, col 15)
-Token(NUMBER, '2', line 63, col 17)
-Token(RELATIONAL_OP, '==', line 63, col 19)
-Token(NUMBER, '0', line 63, col 22)
-Token(SYMBOL, ')', line 63, col 23)
-Token(SYMBOL, '{', line 63, col 25)
-Token(KEYWORD, 'cout', line 64, col 13)
-Token(BITWISE_OP, '<<', line 64, col 18)
-Token(STRING, '"Número par: "', line 64, col 21)
-Token(BITWISE_OP, '<<', line 64, col 36)
-Token(IDENTIFIER, 'i', line 64, col 39)
-Token(SYMBOL, ';', line 64, col 40)
-Token(SYMBOL, '}', line 65, col 9)
-Token(SYMBOL, '}', line 66, col 5)
-Token(KEYWORD, 'while', line 68, col 5)
-Token(SYMBOL, '(', line 68, col 11)
-Token(IDENTIFIER, 'x', line 68, col 12)
-Token(RELATIONAL_OP, '>', line 68, col 14)
-Token(NUMBER, '0', line 68, col 16)
-Token(SYMBOL, ')', line 68, col 17)
-Token(SYMBOL, '{', line 68, col 19)
-Token(IDENTIFIER, 'x', line 69, col 9)
-Token(ARITHMETIC_OP, '--', line 69, col 10)
-Token(SYMBOL, ';', line 69, col 12)
-Token(KEYWORD, 'cout', line 70, col 9)
-Token(BITWISE_OP, '<<', line 70, col 14)
-Token(STRING, '"Contador: "', line 70, col 17)
-Token(BITWISE_OP, '<<', line 70, col 30)
-Token(IDENTIFIER, 'x', line 70, col 33)
-Token(SYMBOL, ';', line 70, col 34)
-Token(SYMBOL, '}', line 71, col 5)
-Token(COMMENT, '// Switch con errores
-', line 73, col 5)
-Token(KEYWORD, 'switch', line 74, col 5)
-Token(SYMBOL, '(', line 74, col 12)
-Token(IDENTIFIER, 'x', line 74, col 13)
-Token(SYMBOL, ')', line 74, col 14)
-Token(SYMBOL, '{', line 74, col 16)
-Token(KEYWORD, 'case', line 75, col 9)
-Token(NUMBER, '1', line 75, col 14)
-Token(SYMBOL, ':', line 75, col 15)
-Token(KEYWORD, 'cout', line 75, col 17)
-Token(BITWISE_OP, '<<', line 75, col 22)
-Token(STRING, '"Uno"', line 75, col 25)
-Token(SYMBOL, ';', line 75, col 30)
-Token(KEYWORD, 'break', line 75, col 32)
-Token(SYMBOL, ';', line 75, col 37)
-Token(KEYWORD, 'case', line 76, col 9)
-Token(NUMBER, '2', line 76, col 14)
-Token(SYMBOL, ':', line 76, col 15)
-Token(KEYWORD, 'cout', line 76, col 17)
-Token(BITWISE_OP, '<<', line 76, col 22)
-Token(STRING, '"Dos"', line 76, col 25)
-Token(SYMBOL, ';', line 76, col 30)
-Token(KEYWORD, 'break', line 76, col 32)
-Token(SYMBOL, ';', line 76, col 37)
-Token(KEYWORD, 'default', line 77, col 9)
-Token(SYMBOL, ':', line 77, col 16)
-Token(KEYWORD, 'cout', line 77, col 18)
-Token(BITWISE_OP, '<<', line 77, col 23)
-Token(STRING, '"Otro"', line 77, col 26)
-Token(SYMBOL, ';', line 77, col 32)
-Token(SYMBOL, '}', line 78, col 5)
-Token(KEYWORD, 'return', line 80, col 5)
-Token(NUMBER, '0', line 80, col 12)
-Token(SYMBOL, ';', line 80, col 13)
-Token(SYMBOL, '}', line 81, col 1)
+   Esta prueba se centra en casos límite y errores:
+   - Comentarios sin cerrar
+   - Cadenas sin cerrar
+   - Caracteres no válidos
+   - Casos límite de sintaxis
+*/', line 2, col 1)
+Token(COMMENT, '// 1. Prueba de comentarios
+', line 10, col 1)
+Token(COMMENT, '// Comentario normal de una línea
+', line 11, col 1)
+Token(COMMENT, '/* Comentario 
+   multilínea
+   normal */', line 12, col 1)
+Token(COMMENT, '// Comentario multilínea sin cerrar (debe generar error)
+', line 16, col 1)
+Token(COMMENT, '/* Este comentario no se cierra correctamente
+   y debería generar un error de análisis léxico
+
+// 2. Prueba de cadenas
+string cadena_normal = "Esta es una cadena correcta";
+string cadena_vacia = "";
+string cadena_con_espacios = "     ";
+string cadena_con_numeros = "123456";
+string cadena_con_simbolos = "!@#$%^&*()";
+
+// Cadena sin cerrar (debe generar error)
+string cadena_sin_cerrar = "Esta cadena no tiene cierre;
+
+// 3. Prueba de caracteres no válidos
+int a = 5;
+// Estos caracteres deberían generar errores
+@ # $ % ` ~ 
+
+// 4. Prueba de identificadores límite
+int _ = 1;        // Solo underscore
+int a123456789_123456789_123456789 = 2;  // Identificador muy largo
+
+// 5. Prueba de números límite
+int numero_grande = 999999999;
+float decimal_muchos_digitos = 1.234567890123456789;
+float decimal_solo_punto = 5.;
+
+// 6. Prueba de operadores consecutivos
+int a = 5 + + 3;  // Dos operadores + consecutivos
+int b = 5 - - 3;  // Dos operadores - consecutivos
+int c = 5 * * 3;  // Operadores * consecutivos (inválido)
+
+// 7. Prueba de saltos de línea en contextos inesperados
+int x = 
+5;
+
+if 
+(x > 3) {
+    x = 
+    x + 
+    1;
+}
+
+// 8. Prueba de espacios en blanco y tabulaciones
+int    espaciado    =    5   ;
+if		(x	>	0)	{		}
+
+// 9. Prueba de comentarios y strings con contenido especial
+// Comentario con símbolos: !@#$%^&*()_+-={}[]|\:;"'<>,.?/
+/* Comentario multilínea con 
+   símbolos: !@#$%^&*()_+-={}[]|\:;"'<>,.?/ */', line 17, col 1)
+Token(KEYWORD, 'string', line 68, col 1)
+Token(IDENTIFIER, 'cadena_especial', line 68, col 8)
+Token(ASSIGNMENT, '=', line 68, col 24)
+Token(STRING, '"Cadena con \"', line 68, col 26)
+Token(IDENTIFIER, 'comillas', line 68, col 40)
+Token(ERROR, '\', line 68, col 48)
+Token(STRING, '" internas"', line 68, col 49)
+Token(SYMBOL, ';', line 68, col 60)
+Token(COMMENT, '// 10. Prueba de comentarios anidados (no estándar en C/C++)
+', line 70, col 1)
+Token(COMMENT, '/* Comentario externo
+   /* Intento de comentario interno - esto generaría error en C/C++ */', line 71, col 1)
+Token(IDENTIFIER, 'Continuaci', line 73, col 4)
+Token(ERROR, 'ó', line 73, col 14)
+Token(IDENTIFIER, 'n', line 73, col 15)
+Token(IDENTIFIER, 'del', line 73, col 17)
+Token(IDENTIFIER, 'comentario', line 73, col 21)
+Token(IDENTIFIER, 'externo', line 73, col 32)
+Token(ARITHMETIC_OP, '*', line 73, col 40)
+Token(ARITHMETIC_OP, '/', line 73, col 41)
+Token(COMMENT, '// 11. Prueba de cadenas con saltos de línea (inválido)
+', line 75, col 1)
+Token(KEYWORD, 'string', line 76, col 1)
+Token(IDENTIFIER, 'cadena_con_salto', line 76, col 8)
+Token(ASSIGNMENT, '=', line 76, col 25)
+Token(UNCLOSED_STRING, '"Esta cadena tiene un salto de...', line 76, col 27)
+Token(ERROR, 'Cadena sin cerrar', line 76, col 27)
+Token(IDENTIFIER, 'y', line 77, col 1)
+Token(IDENTIFIER, 'deber', line 77, col 3)
+Token(ERROR, 'í', line 77, col 8)
+Token(IDENTIFIER, 'a', line 77, col 9)
+Token(IDENTIFIER, 'generar', line 77, col 11)
+Token(IDENTIFIER, 'un', line 77, col 19)
+Token(IDENTIFIER, 'error', line 77, col 22)
+Token(UNCLOSED_STRING, '";
+', line 77, col 27)
+Token(ERROR, 'Cadena sin cerrar', line 77, col 27)
+Token(COMMENT, '// Fin de la prueba 2', line 79, col 1)

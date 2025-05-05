@@ -5,7 +5,7 @@ class TokenType(Enum):
     NUMBER = auto()
     IDENTIFIER = auto()
     COMMENT = auto()
-    UNCLOSED_COMMENT = auto()  # Nuevo tipo para comentarios sin cerrar
+    UNCLOSED_COMMENT = auto() 
     KEYWORD = auto()
     ARITHMETIC_OP = auto()
     RELATIONAL_OP = auto()
@@ -16,7 +16,7 @@ class TokenType(Enum):
     ERROR = auto()
     WHITESPACE = auto()
     STRING = auto()
-    UNCLOSED_STRING = auto()  # Nuevo tipo para cadenas sin cerrar
+    UNCLOSED_STRING = auto()
 
 class Token:
     def __init__(self, type, value, line, column):
@@ -33,7 +33,7 @@ class LexicalAnalyzer:
         # Actualizada la lista de palabras reservadas según los requisitos
         self.keywords = {
             'if', 'else', 'end', 'do', 'while', 'switch', 'case',
-            'int', 'float', 'main', 'cin', 'cout', 'break', 'default', 'return', 'for'
+            'int', 'float', 'main', 'cin', 'cout', 'break', 'default', 'return', 'for', 'string'  # Añadido 'string'
         }
 
         # Patrones actualizados incluyendo operadores de desplazamiento
@@ -115,10 +115,53 @@ class LexicalAnalyzer:
                 if found_closing:
                     tokens.append(Token(TokenType.COMMENT, comment_content, comment_start_line, comment_start_col))
                 else:
-                    # Comentario sin cerrar - error léxico
-                    tokens.append(Token(TokenType.UNCLOSED_COMMENT, comment_content, comment_start_line, comment_start_col))
-                    # También lo añadimos como error para ser consistentes
+                    # Comentario sin cerrar - Limitamos el contenido mostrado para evitar mensajes muy largos
+                    preview = comment_content[:30] + "..." if len(comment_content) > 30 else comment_content
+                    tokens.append(Token(TokenType.UNCLOSED_COMMENT, preview, comment_start_line, comment_start_col))
+                    # Añadimos un token de error específico
                     tokens.append(Token(TokenType.ERROR, "Comentario multilínea sin cerrar", comment_start_line, comment_start_col))
+                
+                continue
+
+            # Verificar si estamos al inicio de una cadena
+            if code[i] == '"':
+                string_start_line = line_num
+                string_start_col = i - line_start + 1
+                string_start_pos = i
+                i += 1
+                
+                # Buscar el token de cierre "
+                found_closing = False
+                string_content = '"'
+                
+                while i < len(code) and not found_closing:
+                    if code[i] == '"':
+                        string_content += '"'
+                        found_closing = True
+                        i += 1
+                    elif code[i] == '\n':
+                        # Si encontramos un salto de línea antes del cierre, es una cadena sin cerrar
+                        string_content += code[i]
+                        line_num += 1
+                        line_start = i + 1
+                        i += 1
+                        break  # Rompemos el bucle al encontrar un salto de línea
+                    else:
+                        string_content += code[i]
+                        i += 1
+                        
+                        # Si llegamos al final del código sin encontrar el cierre
+                        if i >= len(code):
+                            break
+                
+                if found_closing:
+                    tokens.append(Token(TokenType.STRING, string_content, string_start_line, string_start_col))
+                else:
+                    # Cadena sin cerrar - Limitamos el contenido mostrado
+                    preview = string_content[:30] + "..." if len(string_content) > 30 else string_content
+                    tokens.append(Token(TokenType.UNCLOSED_STRING, preview, string_start_line, string_start_col))
+                    # Añadimos un token de error específico
+                    tokens.append(Token(TokenType.ERROR, "Cadena sin cerrar", string_start_line, string_start_col))
                 
                 continue
 
@@ -137,10 +180,6 @@ class LexicalAnalyzer:
 
                     if token_type != TokenType.WHITESPACE:
                         tokens.append(Token(token_type, value, line_num, column))
-                        
-                        # Si encontramos una cadena sin cerrar, también la marcamos como error
-                        if token_type == TokenType.UNCLOSED_STRING:
-                            tokens.append(Token(TokenType.ERROR, "Cadena sin cerrar", line_num, column))
 
                     # Manejo de saltos de línea para contar líneas correctamente
                     newlines = value.count('\n')
@@ -170,7 +209,7 @@ class LexicalAnalyzer:
     def analyze(self, code):
         tokens = self.tokenize(code)
         # Recopilar todos los tokens de error, incluyendo comentarios sin cerrar y cadenas sin cerrar
-        errors = [token for token in tokens if token.type in {TokenType.ERROR, TokenType.UNCLOSED_COMMENT, TokenType.UNCLOSED_STRING}]
+        errors = [token for token in tokens if token.type in {TokenType.ERROR}]
         return tokens, errors
 
     def get_token_color(self, token_type):
@@ -198,7 +237,7 @@ class LexicalAnalyzer:
 
         for token in tokens:
             # Necesitamos manejar tokens especiales que pueden no estar en el texto original
-            if token.type in {TokenType.UNCLOSED_COMMENT, TokenType.UNCLOSED_STRING, TokenType.ERROR} and token.value.startswith("Comentario") or token.value.startswith("Cadena"):
+            if token.type == TokenType.ERROR and (token.value == "Comentario multilínea sin cerrar" or token.value == "Cadena sin cerrar"):
                 continue
                 
             token_pos = code.find(token.value, current_pos)
@@ -231,13 +270,12 @@ class LexicalAnalyzer:
         error_messages = []
         
         for e in errors:
-            if e.type == TokenType.UNCLOSED_COMMENT:
+            if e.value == "Comentario multilínea sin cerrar":
                 error_messages.append(f"Error léxico en línea {e.line}, columna {e.column}: Comentario multilínea sin cerrar")
-            elif e.type == TokenType.UNCLOSED_STRING:
+            elif e.value == "Cadena sin cerrar":
                 error_messages.append(f"Error léxico en línea {e.line}, columna {e.column}: Cadena sin cerrar")
-            elif e.type == TokenType.ERROR and (e.value.startswith("Comentario") or e.value.startswith("Cadena")):
-                error_messages.append(f"Error léxico en línea {e.line}, columna {e.column}: {e.value}")
             else:
+                # Limitar el tamaño del mensaje para caracteres no reconocidos
                 error_messages.append(f"Error léxico en línea {e.line}, columna {e.column}: Carácter no reconocido '{e.value}'")
                 
         return error_messages
@@ -259,37 +297,36 @@ if __name__ == "__main__":
                 f.write(str(token) + "\n")
 
         with open("errores.txt", "w") as f:
-            for error in errors:
-                if error.type == TokenType.UNCLOSED_COMMENT:
-                    f.write(f"Error en línea {error.line}, columna {error.column}: Comentario multilínea sin cerrar\n")
-                elif error.type == TokenType.UNCLOSED_STRING:
-                    f.write(f"Error en línea {error.line}, columna {error.column}: Cadena sin cerrar\n")
-                elif error.type == TokenType.ERROR and (error.value.startswith("Comentario") or error.value.startswith("Cadena")):
-                    f.write(f"Error en línea {error.line}, columna {error.column}: {error.value}\n")
-                else:
-                    f.write(f"Error en línea {error.line}, columna {error.column}: '{error.value}'\n")
+            for token in tokens:
+                if token.type == TokenType.ERROR:
+                    if token.value == "Comentario multilínea sin cerrar":
+                        f.write(f"Error en línea {token.line}, columna {token.column}: Comentario multilínea sin cerrar\n")
+                    elif token.value == "Cadena sin cerrar":
+                        f.write(f"Error en línea {token.line}, columna {token.column}: Cadena sin cerrar\n")
+                    else:
+                        f.write(f"Error en línea {token.line}, columna {token.column}: Carácter no reconocido '{token.value}'\n")
 
         with open("salida.html", "w") as f:
             f.write("""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Análisis Léxico</title>
-    <style>
-        body { font-family: monospace; background-color: #f5f5f5; }
-        .color1 { color: blue; }         /* Números */
-        .color2 { color: green; }        /* Identificadores */
-        .color3 { color: gray; }         /* Comentarios */
-        .color4 { color: purple; }       /* Palabras reservadas */
-        .color5 { color: red; }          /* Operadores aritméticos y bit */
-        .color6 { color: brown; }        /* Operadores relacionales y lógicos */
-        .color7 { color: darkgreen; }    /* Cadenas */
-        .default { color: black; }       /* Otros tokens */
-        .error { color: red; background-color: yellow; }
-    </style>
-</head>
-<body>
-""")
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Análisis Léxico</title>
+                    <style>
+                        body { font-family: monospace; background-color: #f5f5f5; }
+                        .color1 { color: blue; }         /* Números */
+                        .color2 { color: green; }        /* Identificadores */
+                        .color3 { color: gray; }         /* Comentarios */
+                        .color4 { color: purple; }       /* Palabras reservadas */
+                        .color5 { color: red; }          /* Operadores aritméticos y bit */
+                        .color6 { color: brown; }        /* Operadores relacionales y lógicos */
+                        .color7 { color: darkgreen; }    /* Cadenas */
+                        .default { color: black; }       /* Otros tokens */
+                        .error { color: red; background-color: yellow; }
+                    </style>
+                </head>
+                <body>
+                """)
             f.write(analyzer.generate_html(test_code))
             f.write("""
 </body>

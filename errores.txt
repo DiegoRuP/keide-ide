@@ -1,3 +1,0 @@
-Error en línea 1, columna 9: '@'
-Error en línea 1, columna 27: '.'
-Error en línea 2, columna -24: '.'
