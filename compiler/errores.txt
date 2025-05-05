@@ -1,3 +1,11 @@
-Error en línea 1, columna 9: '@'
-Error en línea 1, columna 27: '.'
-Error en línea 2, columna -24: '.'
+Error en línea 10, columna 9: '@'
+Error en línea 18, columna 16: '$'
+Error en línea 19, columna 16: '#'
+Error en línea 27, columna 13: '"Esta cadena no tiene cierre;  // Error: cadena sin cerrar
+'
+Error en línea 27, columna 13: 'Cadena sin cerrar'
+Error en línea 28, columna 13: '"Esta es otra cadena sin cerrar
+'
+Error en línea 28, columna 13: 'Cadena sin cerrar'
+Error en línea 45, columna 19: 'á'
+Error en línea 48, columna 17: '£'
