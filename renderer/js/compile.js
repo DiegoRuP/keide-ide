@@ -46,11 +46,15 @@ function setupCompiler() {
         try {
             const result = await window.compilerAPI.compile(code);
             console.log('Resultado compilación:', result);
+
+            if(window.colorearEditorConTokens){
+                window.colorearEditorConTokens(result.tokens);
+            }
             
             if (result.error) {
                 throw new Error(result.error);
             }
-
+        
             // Mostrar tokens
             if (result.tokens) {
                 document.getElementById('lexico').innerHTML = result.tokens.map(token => `
@@ -60,6 +64,12 @@ function setupCompiler() {
                         <span class="token-position">Línea ${token.line}, Col ${token.column}</span>
                     </div>
                 `).join('');
+                
+                
+                if(window.colorearEditorConTokens){
+                    window.colorearEditorConTokens(result.tokens);
+                }
+        
             }
             
             // Mostrar errores
@@ -69,7 +79,7 @@ function setupCompiler() {
             if (result.html_coloreado) {
                 resultadosOutput.innerHTML = result.html_coloreado;
             }
-
+        
         } catch (error) {
             console.error('Error en compilación:', error);
             lexicoOutput.textContent = `Error: ${error.message}`;

@@ -363,6 +363,16 @@ main {
 .color6 { color: #9C27B0; }  /* Operadores relacionales/lógicos */
 .error { color: #f44336; font-weight: bold; }  /* Errores */
 
+.cm-color1   { color: #164 !important; }    /* Números */
+.cm-color2   { color: #2196F3 !important; } /* Identificadores */
+.cm-color3   { color: #999 !important; }    /* Comentarios */
+.cm-color4   { color: #f92672 !important; } /* Palabras reservadas */
+.cm-color5   { color: #E91E63 !important; } /* Operadores aritméticos y bit */
+.cm-color6   { color: #9C27B0 !important; } /* Operadores relacionales/lógicos */
+.cm-error    { color: #f44336 !important; font-weight: bold; background: #ffeeee !important;}
+.cm-default  { color: inherit !important; }
+
+
 /* Contenedor de resultados */
 #output-resultados {
     background-color: #f8f9fa;

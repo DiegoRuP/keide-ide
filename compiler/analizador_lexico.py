@@ -52,6 +52,7 @@ class LexicalAnalyzer:
             (r'\b(?:' + '|'.join(self.keywords) + r')\b', TokenType.KEYWORD),
             
             # Números (enteros y reales, con o sin signo)
+            (r'[+-]?\d+\.(?!\d)', TokenType.ERROR),  # Número con punto pero sin cifra decimal después, ejemplo 32.
             (r'[+-]?\d+\.\d+', TokenType.NUMBER),  # Números reales
             (r'[+-]?\d+', TokenType.NUMBER),       # Números enteros
             
