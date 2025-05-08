@@ -28,9 +28,11 @@ __pycache__/
 *.pyc
 venv/
 .venv/
-errores.txt
-salida.html
-tokens.txt
+
+# Archivos generados por el compilador
+compiler/errores.txt
+compiler/salida.html
+compiler/tokens.txt
 
 # Archivos de sistema
 .DS_Store
@@ -39,3 +41,4 @@ Thumbs.db
 # Archivos de construcción
 build/
 dist/
+
