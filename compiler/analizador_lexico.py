@@ -51,10 +51,13 @@ class LexicalAnalyzer:
             # Palabras reservadas
             (r'\b(?:' + '|'.join(self.keywords) + r')\b', TokenType.KEYWORD),
             
-            # Números (enteros y reales, con o sin signo)
-            (r'[+-]?\d+\.(?!\d)', TokenType.ERROR),  # Número con punto pero sin cifra decimal después, ejemplo 32.
-            (r'[+-]?\d+\.\d+', TokenType.NUMBER),  # Números reales
-            (r'[+-]?\d+', TokenType.NUMBER),       # Números enteros
+            # Signos + y - como operadores aritméticos (cuando van solos)
+            (r'[+\-]', TokenType.ARITHMETIC_OP),
+            
+            # Números (enteros y reales, SIN signo)
+            (r'\d+\.(?!\d)', TokenType.ERROR),  # Número con punto pero sin cifra decimal después, ejemplo 32.
+            (r'\d+\.\d+', TokenType.NUMBER),  # Números reales
+            (r'\d+', TokenType.NUMBER),       # Números enteros
             
             # Identificadores (letras y dígitos, no comienzan con dígito)
             (r'[a-zA-Z_][a-zA-Z0-9_]*', TokenType.IDENTIFIER),
@@ -210,8 +213,10 @@ class LexicalAnalyzer:
     def analyze(self, code):
         tokens = self.tokenize(code)
         # Recopilar todos los tokens de error, incluyendo comentarios sin cerrar y cadenas sin cerrar
-        errors = [token for token in tokens if token.type in {TokenType.ERROR}]
-        return tokens, errors
+        errors = [token for token in tokens if token.type in {TokenType.ERROR, TokenType.UNCLOSED_COMMENT, TokenType.UNCLOSED_STRING}]
+        # Filtrar tokens de error para que no aparezcan en la lista de tokens válidos
+        valid_tokens = [token for token in tokens if token.type not in {TokenType.ERROR, TokenType.UNCLOSED_COMMENT, TokenType.UNCLOSED_STRING}]
+        return valid_tokens, errors
 
     def get_token_color(self, token_type):
         return {
