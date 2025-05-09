@@ -51,9 +51,6 @@ class LexicalAnalyzer:
             # Palabras reservadas
             (r'\b(?:' + '|'.join(self.keywords) + r')\b', TokenType.KEYWORD),
             
-            # Signos + y - como operadores aritméticos (cuando van solos)
-            (r'[+\-]', TokenType.ARITHMETIC_OP),
-            
             # Números (enteros y reales, SIN signo)
             (r'\d+\.(?!\d)', TokenType.ERROR),  # Número con punto pero sin cifra decimal después, ejemplo 32.
             (r'\d+\.\d+', TokenType.NUMBER),  # Números reales

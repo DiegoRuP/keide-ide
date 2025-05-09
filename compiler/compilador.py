@@ -48,6 +48,9 @@ def compilar(codigo):
     with open(os.path.join(BASE_DIR, "salida.html"), "w", encoding="utf-8") as f:
         f.write(html_coloreado)
 
+    # Incluir tanto tokens válidos como errores para el coloreado
+    todos_los_tokens = tokens + errores
+
     return json.dumps({
         'tokens': [
             {
@@ -55,7 +58,7 @@ def compilar(codigo):
                 'value': token.value,
                 'line': token.line,
                 'column': token.column
-            } for token in tokens
+            } for token in todos_los_tokens
         ],
         'errores': [
             f"Error léxico en línea {e.line}, columna {e.column}: Carácter no reconocido '{e.value}'"

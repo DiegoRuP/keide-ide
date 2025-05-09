@@ -258,49 +258,49 @@ document.addEventListener('DOMContentLoaded', () => {
     window.activeMarks = [];
 
     function colorearEditorConTokens(tokens) {
-        // Borra highlights anteriores
-        if(window.activeMarks){
-            window.activeMarks.forEach(mark => mark.clear());
-            window.activeMarks = [];
-        }
-        tokens.forEach(token => {
-            // Mapear el tipo de token a clase cm
-            let cmClass = 'cm-default';
-            switch(token.type) {
-                case 'NUMBER':           cmClass = 'cm-color1'; break;
-                case 'IDENTIFIER':       cmClass = 'cm-color2'; break;
-                case 'COMMENT':
-                case 'UNCLOSED_COMMENT': cmClass = 'cm-color3'; break;
-                case 'KEYWORD':          cmClass = 'cm-color4'; break;
-                case 'ARITHMETIC_OP':
-                case 'BITWISE_OP':       cmClass = 'cm-color5'; break;
-                case 'RELATIONAL_OP':
-                case 'LOGICAL_OP':       cmClass = 'cm-color6'; break;
-                case 'ERROR':
-                case 'UNCLOSED_STRING':  cmClass = 'cm-error'; break;
-                case 'STRING':           cmClass = 'cm-color6'; break; // O usa cm-color7 si la creas
-                // Otros casos según tus tipos de token
-            }
-
-            // Omitir espacios en blanco (opcional)
-            if(token.type === 'WHITESPACE') return;
-
-            // Convertir linea y columna (base 1 a base 0)
-            const from = {line: token.line - 1, ch: token.column - 1};
-            const to = {line: token.line - 1, ch: token.column - 1 + (token.value || '').length};
-
-            // Evita rangos negativos/invertidos
-            if(to.ch < from.ch) return;
-
-            // CodeMirror limita a fin de línea (no marca varios saltos de línea de una vez)
-            window.activeMarks.push(
-                editor.markText(from, to, {className: cmClass})
-            );
-        });
+    // Borra highlights anteriores
+    if(window.activeMarks){
+        window.activeMarks.forEach(mark => mark.clear());
+        window.activeMarks = [];
     }
+    tokens.forEach(token => {
+        // Mapear el tipo de token a clase cm
+        let cmClass = 'cm-default';
+        switch(token.type) {
+            case 'NUMBER':           cmClass = 'cm-color1'; break;
+            case 'IDENTIFIER':       cmClass = 'cm-color2'; break;
+            case 'COMMENT':
+            case 'UNCLOSED_COMMENT': cmClass = 'cm-color3'; break;
+            case 'KEYWORD':          cmClass = 'cm-color4'; break;
+            case 'ARITHMETIC_OP':
+            case 'BITWISE_OP':       cmClass = 'cm-color5'; break;
+            case 'RELATIONAL_OP':
+            case 'LOGICAL_OP':       cmClass = 'cm-color6'; break;
+            case 'ERROR':
+            case 'UNCLOSED_STRING':  cmClass = 'cm-error'; break;
+            case 'STRING':           cmClass = 'cm-color6'; break;
+            // Otros casos según tus tipos de token
+        }
+
+        // Omitir espacios en blanco (opcional)
+        if(token.type === 'WHITESPACE') return;
+
+        // Convertir linea y columna (base 1 a base 0)
+        const from = {line: token.line - 1, ch: token.column - 1};
+        const to = {line: token.line - 1, ch: token.column - 1 + (token.value || '').length};
+
+        // Evita rangos negativos/invertidos
+        if(to.ch < from.ch) return;
+
+        // CodeMirror limita a fin de línea (no marca varios saltos de línea de una vez)
+        window.activeMarks.push(
+            editor.markText(from, to, {className: cmClass})
+        );
+    });
+}
 
 
-    // Colorea cada vez que el usuario edita (esto hace muchas llamadas: solo en equipos potentes)
+    // Colorea cada vez que el usuario edita
     editor.on('change', async () => {
         // Debounce - un solo análisis cada 500ms sin tecleo
         clearTimeout(window.highlightTimeout);

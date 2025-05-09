@@ -55,9 +55,14 @@ function setupCompiler() {
                 throw new Error(result.error);
             }
         
-            // Mostrar tokens
+            // En la parte donde muestras los tokens en el panel:
             if (result.tokens) {
-                document.getElementById('lexico').innerHTML = result.tokens.map(token => `
+                // Filtrar los tokens de error y comentarios solo para la visualización en el panel
+                const tokensParaPanel = result.tokens.filter(token => 
+                    !['ERROR', 'UNCLOSED_COMMENT', 'UNCLOSED_STRING', 'COMMENT'].includes(token.type)
+                );
+                
+                document.getElementById('lexico').innerHTML = tokensParaPanel.map(token => `
                     <div class="token">
                         <span class="token-type">${token.type}</span>
                         <span class="token-value">${token.value}</span>
@@ -65,11 +70,10 @@ function setupCompiler() {
                     </div>
                 `).join('');
                 
-                
+                // Usar todos los tokens para colorear el editor
                 if(window.colorearEditorConTokens){
                     window.colorearEditorConTokens(result.tokens);
                 }
-        
             }
             
             // Mostrar errores
@@ -77,7 +81,7 @@ function setupCompiler() {
             
             // Mostrar código coloreado
             if (result.html_coloreado) {
-                resultadosOutput.innerHTML = result.html_coloreado;
+                resultadosOutput.innerHTML = "Compilación lexica realizada";
             }
         
         } catch (error) {
