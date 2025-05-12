@@ -1,7 +1,7 @@
 # compilador.py
 import sys
 import json
-from analizador_lexico import LexicalAnalyzer
+from analizador_lexico import LexicalAnalyzer, TokenType
 import traceback
 import os
 
@@ -32,10 +32,13 @@ def main():
 def compilar(codigo):
     analizador = LexicalAnalyzer()
     tokens, errores = analizador.analyze(codigo)
+    
+    # Filtrar los tokens para la escritura en archivo
+    tokens_filtrados = [token for token in tokens if token.type != TokenType.COMMENT]
 
     # Guardar tokens en archivo
     with open(os.path.join(BASE_DIR, "tokens.txt"), "w", encoding="utf-8") as f:
-        for token in tokens:
+        for token in tokens_filtrados:
             f.write(str(token) + "\n")
 
     # Guardar errores en archivo

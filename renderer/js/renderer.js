@@ -263,39 +263,61 @@ document.addEventListener('DOMContentLoaded', () => {
         window.activeMarks.forEach(mark => mark.clear());
         window.activeMarks = [];
     }
+    
     tokens.forEach(token => {
         // Mapear el tipo de token a clase cm
         let cmClass = 'cm-default';
         switch(token.type) {
             case 'NUMBER':           cmClass = 'cm-color1'; break;
             case 'IDENTIFIER':       cmClass = 'cm-color2'; break;
-            case 'COMMENT':
-            case 'UNCLOSED_COMMENT': cmClass = 'cm-color3'; break;
+            case 'COMMENT':          cmClass = 'cm-color3'; break; // Comentarios normales
+            case 'UNCLOSED_COMMENT': cmClass = 'cm-color3'; break; // Comentarios sin cerrar (podrías usar un estilo diferente)
             case 'KEYWORD':          cmClass = 'cm-color4'; break;
             case 'ARITHMETIC_OP':
             case 'BITWISE_OP':       cmClass = 'cm-color5'; break;
             case 'RELATIONAL_OP':
             case 'LOGICAL_OP':       cmClass = 'cm-color6'; break;
-            case 'ERROR':
+            case 'ERROR':            cmClass = 'cm-error'; break;
+            case 'STRING':           cmClass = 'cm-color7'; break;
             case 'UNCLOSED_STRING':  cmClass = 'cm-error'; break;
-            case 'STRING':           cmClass = 'cm-color6'; break;
             // Otros casos según tus tipos de token
         }
 
-        // Omitir espacios en blanco (opcional)
+        // Omitir espacios en blanco
         if(token.type === 'WHITESPACE') return;
 
-        // Convertir linea y columna (base 1 a base 0)
-        const from = {line: token.line - 1, ch: token.column - 1};
-        const to = {line: token.line - 1, ch: token.column - 1 + (token.value || '').length};
+        try {
+            // Convertir línea y columna (base 1 a base 0)
+            const from = {line: token.line - 1, ch: token.column - 1};
+            
+            // Para comentarios multilínea, debemos calcular correctamente la posición final
+            let to;
+            if (token.type === 'COMMENT' && token.value.includes('\n')) {
+                // Calcula la posición final para comentarios multilínea
+                const lines = token.value.split('\n');
+                const lastLine = lines[lines.length - 1];
+                to = {
+                    line: token.line + lines.length - 2, // -2 porque ya contamos desde 0 y porque queremos el índice
+                    ch: lastLine.length
+                };
+            } else {
+                // Para tokens de una sola línea
+                to = {line: token.line - 1, ch: token.column - 1 + (token.value || '').length};
+            }
 
-        // Evita rangos negativos/invertidos
-        if(to.ch < from.ch) return;
+            // Evita rangos negativos/invertidos
+            if(to.ch < from.ch && to.line === from.line) return;
+            
+            // Asegúrate de que las líneas estén dentro del rango del documento
+            const docLineCount = editor.lineCount();
+            if (from.line >= docLineCount || to.line >= docLineCount) return;
 
-        // CodeMirror limita a fin de línea (no marca varios saltos de línea de una vez)
-        window.activeMarks.push(
-            editor.markText(from, to, {className: cmClass})
-        );
+            // CodeMirror limita a fin de línea (no marca varios saltos de línea de una vez)
+            const mark = editor.markText(from, to, {className: cmClass});
+            window.activeMarks.push(mark);
+        } catch (e) {
+            console.error('Error al marcar token:', token, e);
+        }
     });
 }
 
