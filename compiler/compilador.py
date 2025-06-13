@@ -1,9 +1,9 @@
-# compilador.py
 import sys
 import json
-from analizador_lexico import LexicalAnalyzer, TokenType
-import traceback
 import os
+import traceback
+from analizador_lexico import LexicalAnalyzer, TokenType
+from analizador_sintactico import Parser
 
 # Directorio donde se encuentra este archivo
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,30 +30,38 @@ def main():
         return 1
 
 def compilar(codigo):
+    # Análisis léxico
     analizador = LexicalAnalyzer()
-    tokens, errores = analizador.analyze(codigo)
+    tokens, errores_lexicos = analizador.analyze(codigo)
     
-    # Filtrar los tokens para la escritura en archivo
-    tokens_filtrados = [token for token in tokens if token.type != TokenType.COMMENT]
+    # Filtrar comentarios para el parser
+    tokens_validos = [token for token in tokens if token.type != TokenType.COMMENT]
 
-    # Guardar tokens en archivo
-    with open(os.path.join(BASE_DIR, "tokens.txt"), "w", encoding="utf-8") as f:
-        for token in tokens_filtrados:
+    # Guardar tokens léxicos
+    with open(os.path.join(BASE_DIR, "tokensLexicos.txt"), "w", encoding="utf-8") as f:
+        for token in tokens:
             f.write(str(token) + "\n")
 
-    # Guardar errores en archivo
-    with open(os.path.join(BASE_DIR, "errores.txt"), "w", encoding="utf-8") as f:
-        for error in errores:
+    # Guardar errores léxicos
+    with open(os.path.join(BASE_DIR, "erroresLexicos.txt"), "w", encoding="utf-8") as f:
+        for error in errores_lexicos:
             f.write(f"Error en línea {error.line}, columna {error.column}: '{error.value}'\n")
 
-    # Guardar HTML coloreado
-    html_coloreado = analizador.generate_html(codigo)
-    with open(os.path.join(BASE_DIR, "salida.html"), "w", encoding="utf-8") as f:
-        f.write(html_coloreado)
+    # Análisis sintáctico solo si no hay errores léxicos
+    errores_sintacticos = []
+    if not errores_lexicos:
+        parser = Parser(tokens_validos)
+        errores_sintacticos = parser.parse()
 
-    # Incluir tanto tokens válidos como errores para el coloreado
-    todos_los_tokens = tokens + errores
+    # Guardar errores sintácticos
+    with open(os.path.join(BASE_DIR, "erroresSintacticos.txt"), "w", encoding="utf-8") as f:
+        if errores_sintacticos:
+            for error in errores_sintacticos:
+                f.write(error + "\n")
+        else:
+            f.write("No se encontraron errores sintácticos.\n")
 
+    # Salida JSON unificada
     return json.dumps({
         'tokens': [
             {
@@ -61,13 +69,13 @@ def compilar(codigo):
                 'value': token.value,
                 'line': token.line,
                 'column': token.column
-            } for token in todos_los_tokens
+            } for token in tokens
         ],
-        'errores': [
-            f"Error léxico en línea {e.line}, columna {e.column}: Carácter no reconocido '{e.value}'"
-            for e in errores
+        'errores_lexicos': [
+            f"Error léxico en línea {e.line}, columna {e.column}: '{e.value}'"
+            for e in errores_lexicos
         ],
-        'html_coloreado': html_coloreado
+        'errores_sintacticos': errores_sintacticos
     })
 
 if __name__ == "__main__":

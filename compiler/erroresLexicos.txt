@@ -1,0 +1,6 @@
+Error en línea 11, columna 7: '('
+Error en línea 11, columna 11: ')'
+Error en línea 11, columna 13: '('
+Error en línea 11, columna 17: ')'
+Error en línea 29, columna 13: '('
+Error en línea 29, columna 19: ')'
