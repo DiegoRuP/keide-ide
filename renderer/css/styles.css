@@ -408,3 +408,378 @@ body.dark-mode .tab-content .tab-pane#lexico {
     color: #E0E0E0; /* Texto claro */
     border-color: #292929;
 }
+
+/* ========== ESTILOS PARA ANÁLISIS SINTÁCTICO ========== */
+
+/* Estilos para los tokens en el panel léxico */
+#lexico .token {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    font-family: monospace;
+    font-size: 12px;
+    background-color: transparent;
+    transition: background-color 0.2s;
+}
+
+#lexico .token:hover {
+    background-color: rgba(94, 94, 94, 0.1);
+}
+
+body.dark-mode #lexico .token {
+    border-bottom-color: #444;
+}
+
+body.dark-mode #lexico .token:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+#lexico .token-type {
+    font-weight: bold;
+    color: #5e5e5e;
+    min-width: 120px;
+    display: inline-block;
+}
+
+body.dark-mode #lexico .token-type {
+    color: #66b3ff;
+}
+
+#lexico .token-value {
+    color: #0066cc;
+    flex: 1;
+    margin: 0 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+body.dark-mode #lexico .token-value {
+    color: #4fc3f7;
+}
+
+#lexico .token-position {
+    color: #888;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+body.dark-mode #lexico .token-position {
+    color: #999;
+}
+
+/* Estilos para el AST en el panel sintáctico */
+#sintactico {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 15px;
+}
+
+.ast-container {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.ast-node {
+    padding: 4px 0;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+    border-radius: 3px;
+    padding-left: 5px;
+}
+
+.ast-node:hover {
+    background-color: rgba(94, 94, 94, 0.1);
+}
+
+body.dark-mode .ast-node:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.node-type {
+    font-weight: bold;
+    color: #5e5e5e;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+body.dark-mode .node-type {
+    color: #66b3ff;
+}
+
+.node-value {
+    color: #2e7d32;
+    font-style: italic;
+    margin-left: 8px;
+}
+
+body.dark-mode .node-value {
+    color: #66ff66;
+}
+
+.node-position {
+    color: #666;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+body.dark-mode .node-position {
+    color: #999;
+}
+
+/* Mensajes de error e información */
+.error-message, .info-message {
+    padding: 20px;
+    text-align: center;
+    font-style: italic;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.error-message {
+    color: #d32f2f;
+    background-color: #ffebee;
+    border: 1px solid #ffcdd2;
+}
+
+body.dark-mode .error-message {
+    color: #ff6b6b;
+    background-color: rgba(255, 107, 107, 0.1);
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
+.info-message {
+    color: #1976d2;
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+}
+
+body.dark-mode .info-message {
+    color: #64b5f6;
+    background-color: rgba(100, 181, 246, 0.1);
+    border-color: rgba(100, 181, 246, 0.3);
+}
+
+/* Scrollbar personalizado para los paneles */
+#lexico::-webkit-scrollbar,
+#sintactico::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+#lexico::-webkit-scrollbar-track,
+#sintactico::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+body.dark-mode #lexico::-webkit-scrollbar-track,
+body.dark-mode #sintactico::-webkit-scrollbar-track {
+    background: #2d2d2d;
+}
+
+#lexico::-webkit-scrollbar-thumb,
+#sintactico::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#lexico::-webkit-scrollbar-thumb:hover,
+#sintactico::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+body.dark-mode #lexico::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+body.dark-mode #lexico::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Ajustes para la pestaña de análisis sintáctico */
+.tab-pane#sintactico {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+}
+
+body.dark-mode .tab-pane#sintactico {
+    background-color: #333;
+    color: #E0E0E0;
+    border-color: #292929;
+}
+
+/* Indicador de carga */
+#loading-indicator {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    z-index: 9999;
+}
+
+/* Coloreado de sintaxis para strings */
+.cm-color7 { color: #690 !important; } /* Strings */
+
+/* Mejorar la visualización de los paneles de resultados */
+#output-lexicos,
+#output-sintacticos,
+#output-semanticos,
+#output-resultados {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Resaltar líneas de error */
+.error-line {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-left: 3px solid #f44336;
+    padding-left: 5px;
+}
+
+body.dark-mode .error-line {
+    background-color: rgba(244, 67, 54, 0.2);
+}
+
+/* Resaltado de líneas con errores sintácticos */
+.syntax-error-line {
+    background-color: rgba(244, 67, 54, 0.15) !important;
+    border-left: 3px solid #f44336;
+    padding-left: 5px;
+}
+
+body.dark-mode .syntax-error-line {
+    background-color: rgba(244, 67, 54, 0.25) !important;
+}
+
+/* Tooltips de error */
+.error-tooltip {
+    position: absolute;
+    background-color: #f44336;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    display: none;
+}
+
+/* Marcador de error en el editor */
+.cm-syntax-error {
+    text-decoration: underline wavy #f44336;
+    position: relative;
+}
+
+/* Panel de errores mejorado */
+#output-sintacticos {
+    font-family: 'Courier New', monospace;
+    line-height: 1.8;
+}
+
+#output-sintacticos .error-item {
+    padding: 8px;
+    margin: 5px 0;
+    border-left: 3px solid #f44336;
+    background-color: rgba(244, 67, 54, 0.05);
+}
+
+body.dark-mode #output-sintacticos .error-item {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Mensajes mejorados en el panel sintáctico */
+.warning-message {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ffeeba;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.dark-mode .warning-message {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #c3e6cb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.dark-mode .success-message {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border-color: rgba(40, 167, 69, 0.3);
+}
+
+.info-message {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #bee5eb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.dark-mode .info-message {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: #17a2b8;
+    border-color: rgba(23, 162, 184, 0.3);
+}
+
+/* Sección del AST */
+.ast-section {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 5px;
+}
+
+body.dark-mode .ast-section {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.ast-section h6 {
+    margin: 0 0 10px 0;
+    color: #5e5e5e;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+body.dark-mode .ast-section h6 {
+    color: #999;
+}
+
+
