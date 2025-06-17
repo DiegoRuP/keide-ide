@@ -96,7 +96,6 @@ if (result.ast || result.ast_html) {
     if (result.errores_sintacticos && result.errores_sintacticos.length > 0) {
         document.getElementById('sintactico').innerHTML = `
             <div class="ast-section">
-                <h6>Árbol Sintáctico Parcial:</h6>
                 ${astContent}
             </div>
         `;
@@ -104,7 +103,6 @@ if (result.ast || result.ast_html) {
         // Sin errores, mostrar solo el AST
         document.getElementById('sintactico').innerHTML = `
             <div class="ast-section">
-                <h6>Árbol Sintáctico Abstracto:</h6>
                 ${astContent}
             </div>
         `;
@@ -135,9 +133,37 @@ if (result.ast || result.ast_html) {
                 sintacticoOutput.innerHTML = result.errores_sintacticos.map(error => {
                     return `<div class="error-item">${error}</div>`;
                 }).join('');
+
+                // 🆕 Subrayar errores sintácticos en el editor
+                window.syntaxErrorMarks?.forEach(mark => mark.clear());
+                window.syntaxErrorMarks = [];
+
+                result.errores_sintacticos.forEach(error => {
+                    const match = error.match(/línea (\d+), columna (\d+)/i);
+                    if (match) {
+                        const line = parseInt(match[1]) - 1;
+                        const col = parseInt(match[2]) - 1;
+                        const from = { line, ch: col };
+                        const to = { line, ch: col + 1 };
+                        try {
+                            const mark = editor.markText(from, to, {
+                                className: 'cm-syntax-error',
+                                title: error
+                            });
+                            window.syntaxErrorMarks.push(mark);
+                        } catch (e) {
+                            console.warn('No se pudo marcar error sintáctico:', from, e);
+                        }
+                    }
+                });
+
             } else {
                 sintacticoOutput.innerHTML = '<div style="color: green; padding: 10px;">✓ No se encontraron errores sintácticos</div>';
+                // Limpiar errores anteriores si ya no hay
+                window.syntaxErrorMarks?.forEach(mark => mark.clear());
+                window.syntaxErrorMarks = [];
             }
+
             
             // Mostrar resultado general
             if (!result.errores_lexicos?.length && !result.errores_sintacticos?.length) {

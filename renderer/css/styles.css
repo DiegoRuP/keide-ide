@@ -70,7 +70,6 @@ pre {
     color: #000000;
     padding: 10px;
     border-radius: 5px;
-    font-family: "Courier New", monospace;
     font-size: 14px;
 }
 
@@ -336,7 +335,6 @@ main {
     padding: 4px;
     margin: 2px;
     border-radius: 3px;
-    font-family: monospace;
     display: inline-block;
 }
 
@@ -355,22 +353,24 @@ main {
 }
 
 /* Colores para diferentes tipos de tokens */
-.color1 { color: #164; }  /* Números */
-.color2 { color: #2196F3; }  /* Identificadores */
-.color3 { color: #999; }  /* Comentarios */
-.color4 { color: #f92672; font-weight: bold; }  /* Palabras reservadas */
-.color5 { color: #E91E63; }  /* Operadores aritméticos */
-.color6 { color: #9C27B0; }  /* Operadores relacionales/lógicos */
-.error { color: #f44336; font-weight: bold; }  /* Errores */
+.color1 { color: #2E7D32; }  /* Números: verde oscuro, fácil de leer y relajante */
+.color2 { color: #1565C0; }  /* Identificadores: azul fuerte y profesional */
+.color3 { color: #757575; font-style: italic; }  /* Comentarios: gris medio y cursiva para diferenciarlos */
+.color4 { color: #C62828; font-weight: 700; }  /* Palabras reservadas: rojo oscuro, destaca sin ser chillón */
+.color5 { color: #EF6C00; }  /* Operadores aritméticos: naranja cálido y visible */
+.color6 { color: #6A1B9A; }  /* Operadores relacionales/lógicos: púrpura elegante y distintivo */
+.error { color: #D32F2F; font-weight: 700; background-color: #FFCDD2; }  /* Errores: rojo brillante con fondo suave */
 
-.cm-color1   { color: #164 !important; }    /* Números */
-.cm-color2   { color: #2196F3 !important; } /* Identificadores */
-.cm-color3   { color: #999 !important; }    /* Comentarios */
-.cm-color4   { color: #f92672 !important; } /* Palabras reservadas */
-.cm-color5   { color: #E91E63 !important; } /* Operadores aritméticos y bit */
-.cm-color6   { color: #9C27B0 !important; } /* Operadores relacionales/lógicos */
-.cm-error    { color: #f44336 !important; font-weight: bold; background: #ffeeee !important;}
+/* Clases para CodeMirror, mismas reglas pero con !important */
+.cm-color1   { color: #2E7D32 !important; }
+.cm-color2   { color: #1565C0 !important; }
+.cm-color3   { color: #757575 !important; font-style: italic !important; }
+.cm-color4   { color: #C62828 !important; font-weight: 700 !important; }
+.cm-color5   { color: #EF6C00 !important; }
+.cm-color6   { color: #6A1B9A !important; }
+.cm-error    { color: #D32F2F !important; font-weight: 700 !important; background-color: #FFCDD2 !important; }
 .cm-default  { color: inherit !important; }
+
 
 
 /* Contenedor de resultados */
@@ -418,7 +418,6 @@ body.dark-mode .tab-content .tab-pane#lexico {
     align-items: center;
     padding: 8px 12px;
     border-bottom: 1px solid #eee;
-    font-family: monospace;
     font-size: 12px;
     background-color: transparent;
     transition: background-color 0.2s;
@@ -478,7 +477,6 @@ body.dark-mode #lexico .token-position {
 }
 
 .ast-container {
-    font-family: 'Courier New', monospace;
     font-size: 13px;
     line-height: 1.6;
 }
@@ -638,7 +636,7 @@ body.dark-mode .tab-pane#sintactico {
 #output-sintacticos,
 #output-semanticos,
 #output-resultados {
-    font-family: 'Courier New', monospace;
+    
     font-size: 13px;
     line-height: 1.5;
     white-space: pre-wrap;
@@ -679,17 +677,16 @@ body.dark-mode .syntax-error-line {
     display: none;
 }
 
-/* Marcador de error en el editor */
 .cm-syntax-error {
-    text-decoration: underline wavy #f44336;
+    background-color: rgba(244, 67, 54, 0.4); /* rojo semitransparente */
+    color: inherit;  /* para que el texto no cambie de color */
+    text-decoration: none; /* quita el subrayado */
     position: relative;
 }
 
+
 /* Panel de errores mejorado */
-#output-sintacticos {
-    font-family: 'Courier New', monospace;
-    line-height: 1.8;
-}
+
 
 #output-sintacticos .error-item {
     padding: 8px;
