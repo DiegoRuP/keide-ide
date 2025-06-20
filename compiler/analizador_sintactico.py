@@ -642,29 +642,37 @@ def format_ast_tree(node, indent=0):
     
     return result
 
-def ast_to_html(node, indent=0):
-    """Convierte el AST a HTML para visualización - INCLUYE COLUMNAS"""
+def ast_to_html(node):
+    """Convierte el AST a HTML colapsable"""
     if not node:
         return ""
-    
-    html = '<div class="ast-node" style="margin-left: ' + str(indent * 20) + 'px;">'
+
+    html = '<div class="ast-node">'  # nodo completo
+
+    # Etiqueta clickeable
+    html += '<div class="ast-label">'
     html += f'<span class="node-type">{node.type.name}</span>'
     
     if node.value:
         html += f' <span class="node-value">[{node.value}]</span>'
-    
-    if node.line and node.column:
+
+    if node.line is not None and node.column is not None:
         html += f' <span class="node-position">(línea {node.line}, col {node.column})</span>'
     elif node.line:
         html += f' <span class="node-position">(línea {node.line})</span>'
-    
-    html += '</div>'
-    
-    for child in node.children:
-        if child:
-            html += ast_to_html(child, indent + 1)
-    
+
+    html += '</div>'  # cierra ast-label
+
+    # Hijos
+    if node.children:
+        html += '<div class="ast-children">'
+        for child in node.children:
+            html += ast_to_html(child)
+        html += '</div>'  # cierra ast-children
+
+    html += '</div>'  # cierra ast-node
     return html
+
 
 # Función principal para análisis sintáctico
 def analyze_syntax(tokens):

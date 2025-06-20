@@ -99,6 +99,17 @@ if (result.ast || result.ast_html) {
                 ${astContent}
             </div>
         `;
+        // Hacer nodos colapsables después de inyectar el HTML
+        document.querySelectorAll(".ast-label").forEach(label => {
+        label.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const parent = label.parentElement;
+            if (parent.classList.contains("ast-node")) {
+            parent.classList.toggle("collapsed");
+            }
+        });
+        });
+        
     } else {
         // Sin errores, mostrar solo el AST
         document.getElementById('sintactico').innerHTML = `
@@ -106,6 +117,17 @@ if (result.ast || result.ast_html) {
                 ${astContent}
             </div>
         `;
+
+        // Hacer nodos colapsables después de inyectar el HTML
+        document.querySelectorAll(".ast-label").forEach(label => {
+        label.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const parent = label.parentElement;
+            if (parent.classList.contains("ast-node")) {
+            parent.classList.toggle("collapsed");
+            }
+        });
+        });
     }
     } else if (result.errores_lexicos && result.errores_lexicos.length > 0) {
         // No hay AST debido a errores léxicos

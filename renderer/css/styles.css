@@ -780,3 +780,16 @@ body.dark-mode .ast-section h6 {
 }
 
 
+.ast-node {
+  margin-left: 16px;
+}
+
+.ast-children {
+  margin-left: 20px;
+}
+
+.collapsed > .ast-children {
+  display: none;
+}
+
+

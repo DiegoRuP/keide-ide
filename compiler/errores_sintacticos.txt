@@ -1,1 +1,5 @@
-Error sintáctico en línea 1, columna 1: Fin inesperado del archivo
+Error sintáctico en línea 15, columna 8: La condición del if debería estar entre paréntesis
+Error sintáctico en línea 18, columna 12: La condición del if debería estar entre paréntesis
+Error sintáctico en línea 30, columna 15: La condición del while debería estar entre paréntesis
+Error sintáctico en línea 35, columna 11: La condición del until debería estar entre paréntesis
+Error sintáctico en línea 36, columna 11: La condición del while debería estar entre paréntesis
