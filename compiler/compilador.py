@@ -3,6 +3,7 @@ import sys
 import json
 from analizador_lexico import LexicalAnalyzer, TokenType
 from analizador_sintactico import analyze_syntax, format_ast_tree, ast_to_html
+from analizador_sintactico import export_ast_graphviz
 import traceback
 import os
 
@@ -64,6 +65,9 @@ def compilar(codigo):
             
             # Generar HTML del AST
             ast_html = ast_to_html(ast)
+
+            # Exportar imagen del AST
+            graphviz_path = export_ast_graphviz(ast, filename=os.path.join(BASE_DIR, "ast_visual"))
         
         # Guardar errores sintácticos en archivo
         with open(os.path.join(BASE_DIR, "errores_sintacticos.txt"), "w", encoding="utf-8") as f:

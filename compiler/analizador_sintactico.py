@@ -1,7 +1,9 @@
 import re
 from enum import Enum, auto
 from analizador_lexico import Token, TokenType
+from graphviz import Digraph
 import json
+
 
 class ASTNodeType(Enum):
     PROGRAM = auto()
@@ -673,6 +675,36 @@ def ast_to_html(node):
     html += '</div>'  # cierra ast-node
     return html
 
+def export_ast_graphviz(ast, filename="ast", output_format="png"):
+    dot = Digraph(comment="AST", format=output_format)
+    counter = [0]
+
+    def add_nodes_edges(node, parent_id=None):
+        if node is None:
+            return
+
+        node_id = f"node{counter[0]}"
+        counter[0] += 1
+
+        label = node.type.name
+        if node.value:
+            label += f"\\n[{node.value}]"
+        if node.line is not None and node.column is not None:
+            label += f"\\n(línea {node.line}, col {node.column})"
+
+        dot.node(node_id, label)
+
+        if parent_id:
+            dot.edge(parent_id, node_id)
+
+        for child in node.children:
+            add_nodes_edges(child, node_id)
+
+    add_nodes_edges(ast)
+    dot.render(filename=filename, view=False, cleanup=True)
+    return f"{filename}.{output_format}"
+
+
 
 # Función principal para análisis sintáctico
 def analyze_syntax(tokens):
@@ -681,3 +713,4 @@ def analyze_syntax(tokens):
     ast, errors = analyzer.parse()
     
     return ast, errors
+
