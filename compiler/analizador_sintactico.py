@@ -305,14 +305,27 @@ class SyntacticAnalyzer:
             self.error("Se esperaba '++' o '--'")
             return None
             
-        node = ASTNode(ASTNodeType.UNARY_OP, op_token.value, [], op_token.line, op_token.column)
+        # Crea un nodo IDENTIFIER para la variable
         id_node = ASTNode(ASTNodeType.IDENTIFIER, id_token.value, [], id_token.line, id_token.column)
-        node.children.append(id_node)
+        
+        # Determina la operación (+ o -) y el valor (1)
+        if op_token.value == "++":
+            binary_op_value = "+"
+        else: # op_token.value == "--"
+            binary_op_value = "-"
+            
+        one_node = ASTNode(ASTNodeType.NUMBER, "1", [], op_token.line, op_token.column) # '1' para incremento/decremento
+        
+        # Crea un nodo BINARY_OP para la suma/resta (ej., a + 1)
+        binary_op_node = ASTNode(ASTNodeType.BINARY_OP, binary_op_value, [id_node, one_node], op_token.line, op_token.column)
+        
+        # Crea un nodo ASSIGNMENT (ej., a = a + 1)
+        assignment_node = ASTNode(ASTNodeType.ASSIGNMENT, "=", [id_node, binary_op_node], id_token.line, id_token.column)
         
         if not self.consume(TokenType.SYMBOL, ";"):
             self.error("Falta ';' después del incremento/decremento")
-        
-        return node
+            
+        return assignment_node
     
     def if_statement(self):
         """if_statement -> if expression then statement* (else statement*)? end"""
