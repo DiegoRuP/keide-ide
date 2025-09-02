@@ -4,6 +4,7 @@ import json
 from analizador_lexico import LexicalAnalyzer, TokenType
 from analizador_sintactico import analyze_syntax, format_ast_tree, ast_to_html
 from analizador_sintactico import export_ast_graphviz
+from analizador_semantico import SemanticAnalyzer 
 import traceback
 import os
 
@@ -49,6 +50,7 @@ def compilar(codigo):
         for error in errores_lexicos:
             f.write(f"Error léxico en línea {error.line}, columna {error.column}: '{error.value}'\n")
              # Análisis sintáctico (solo si no hay errores léxicos)
+    
     ast = None
     errores_sintacticos = []
     ast_text = ""
@@ -73,6 +75,17 @@ def compilar(codigo):
         with open(os.path.join(BASE_DIR, "errores_sintacticos.txt"), "w", encoding="utf-8") as f:
             for error in errores_sintacticos:
                 f.write(str(error) + "\n")
+
+    # Análisis semántico (solo si no hay errores léxicos ni sintácticos)
+    errores_semanticos = []
+    if not errores_lexicos and not errores_sintacticos:
+        sem_analyzer = SemanticAnalyzer()
+        errores_semanticos = sem_analyzer.analyze(ast)
+
+        # Guardar errores semánticos en archivo
+        with open(os.path.join(BASE_DIR, "errores_semanticos.txt"), "w", encoding="utf-8") as f:
+            for error in errores_semanticos:
+                f.write(error + "\n")
     
     # Guardar HTML coloreado
     html_coloreado = analizador.generate_html(codigo)
@@ -99,6 +112,7 @@ def compilar(codigo):
         'ast_text': ast_text,
         'ast_html': ast_html,
         'errores_sintacticos': [str(e) for e in errores_sintacticos],
+        'errores_semanticos': [str(e) for e in errores_semanticos],
         'html_coloreado': html_coloreado
     })
 

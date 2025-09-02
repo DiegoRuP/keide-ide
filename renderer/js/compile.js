@@ -46,155 +46,228 @@ function setupCompiler() {
         console.log('Iniciando compilación...');
         
         try {
-            const result = await window.compilerAPI.compile(code);
-            console.log('Resultado compilación:', result);
+          const result = await window.compilerAPI.compile(code);
+          console.log("Resultado compilación:", result);
 
-            if(window.colorearEditorConTokens){
-                window.colorearEditorConTokens(result.tokens);
-            }
-            
-            if (result.error) {
-                throw new Error(result.error);
-            }
-        
-            // Mostrar tokens en el panel léxico
-            if (result.tokens) {
-                const tokensParaPanel = result.tokens.filter(token => 
-                    !['ERROR', 'UNCLOSED_COMMENT', 'UNCLOSED_STRING', 'COMMENT'].includes(token.type)
-                );
-                
-                document.getElementById('lexico').innerHTML = tokensParaPanel.map(token => `
+          if (window.colorearEditorConTokens) {
+            window.colorearEditorConTokens(result.tokens);
+          }
+
+          if (result.error) {
+            throw new Error(result.error);
+          }
+
+          // Mostrar tokens en el panel léxico
+          if (result.tokens) {
+            const tokensParaPanel = result.tokens.filter(
+              (token) =>
+                ![
+                  "ERROR",
+                  "UNCLOSED_COMMENT",
+                  "UNCLOSED_STRING",
+                  "COMMENT",
+                ].includes(token.type)
+            );
+
+            document.getElementById("lexico").innerHTML = tokensParaPanel
+              .map(
+                (token) => `
                     <div class="token">
                         <span class="token-type">${token.type}</span>
                         <span class="token-value">${token.value}</span>
                         <span class="token-position">Línea ${token.line}, Col ${token.column}</span>
                     </div>
-                `).join('');
-            }
-            
-            // Mostrar AST en el panel sintáctico
-            // Mostrar AST en el panel sintáctico
-if (result.ast || result.ast_html) {
-    let astContent = '';
-    
-    // Si hay AST, mostrarlo siempre
-    if (result.ast_html) {
-        astContent = `
+                `
+              )
+              .join("");
+          }
+
+          // Mostrar AST en el panel sintáctico
+          // Mostrar AST en el panel sintáctico
+          if (result.ast || result.ast_html) {
+            let astContent = "";
+
+            // Si hay AST, mostrarlo siempre
+            if (result.ast_html) {
+              astContent = `
             <div class="ast-container">
                 ${result.ast_html}
             </div>
         `;
-    } else if (result.ast) {
-        astContent = `
+            } else if (result.ast) {
+              astContent = `
             <div class="ast-container">
                 ${formatASTNode(result.ast)}
             </div>
         `;
-    }
-    
-    // Si hay errores, agregar un mensaje al principio
-    if (result.errores_sintacticos && result.errores_sintacticos.length > 0) {
-        document.getElementById('sintactico').innerHTML = `
+            }
+
+            // Si hay errores, agregar un mensaje al principio
+            if (
+              result.errores_sintacticos &&
+              result.errores_sintacticos.length > 0
+            ) {
+              document.getElementById("sintactico").innerHTML = `
             <div class="ast-section">
                 ${astContent}
             </div>
         `;
-        // Hacer nodos colapsables después de inyectar el HTML
-        document.querySelectorAll(".ast-label").forEach(label => {
-        label.addEventListener("click", function (e) {
-            e.stopPropagation();
-            const parent = label.parentElement;
-            if (parent.classList.contains("ast-node")) {
-            parent.classList.toggle("collapsed");
-            }
-        });
-        });
-        
-    } else {
-        // Sin errores, mostrar solo el AST
-        document.getElementById('sintactico').innerHTML = `
+              // Hacer nodos colapsables después de inyectar el HTML
+              document.querySelectorAll(".ast-label").forEach((label) => {
+                label.addEventListener("click", function (e) {
+                  e.stopPropagation();
+                  const parent = label.parentElement;
+                  if (parent.classList.contains("ast-node")) {
+                    parent.classList.toggle("collapsed");
+                  }
+                });
+              });
+            } else {
+              // Sin errores, mostrar solo el AST
+              document.getElementById("sintactico").innerHTML = `
             <div class="ast-section">
                 ${astContent}
             </div>
         `;
 
-        // Hacer nodos colapsables después de inyectar el HTML
-        document.querySelectorAll(".ast-label").forEach(label => {
-        label.addEventListener("click", function (e) {
-            e.stopPropagation();
-            const parent = label.parentElement;
-            if (parent.classList.contains("ast-node")) {
-            parent.classList.toggle("collapsed");
+              // Hacer nodos colapsables después de inyectar el HTML
+              document.querySelectorAll(".ast-label").forEach((label) => {
+                label.addEventListener("click", function (e) {
+                  e.stopPropagation();
+                  const parent = label.parentElement;
+                  if (parent.classList.contains("ast-node")) {
+                    parent.classList.toggle("collapsed");
+                  }
+                });
+              });
             }
-        });
-        });
-    }
-    } else if (result.errores_lexicos && result.errores_lexicos.length > 0) {
-        // No hay AST debido a errores léxicos
-        document.getElementById('sintactico').innerHTML = `
+          } else if (
+            result.errores_lexicos &&
+            result.errores_lexicos.length > 0
+          ) {
+            // No hay AST debido a errores léxicos
+            document.getElementById("sintactico").innerHTML = `
             <div class="info-message">
                 <i class="fas fa-info-circle"></i>
                 No se pudo generar el AST debido a errores léxicos.
             </div>
         `;
-    } else {
-        // No hay AST por alguna otra razón
-        document.getElementById('sintactico').innerHTML = `
+          } else {
+            // No hay AST por alguna otra razón
+            document.getElementById("sintactico").innerHTML = `
             <div class="info-message">
                 <i class="fas fa-info-circle"></i>
                 No se generó árbol sintáctico.
             </div>
         `;
-    }
-            
-            // Mostrar errores léxicos
-            lexicoOutput.textContent = result.errores_lexicos?.join('\n') || "No se encontraron errores léxicos";
-            
-            // Mostrar errores sintácticos
-            if (result.errores_sintacticos && result.errores_sintacticos.length > 0) {
-                sintacticoOutput.innerHTML = result.errores_sintacticos.map(error => {
-                    return `<div class="error-item">${error}</div>`;
-                }).join('');
+          }
 
-                // 🆕 Subrayar errores sintácticos en el editor
-                window.syntaxErrorMarks?.forEach(mark => mark.clear());
-                window.syntaxErrorMarks = [];
+          // Mostrar errores léxicos
+          lexicoOutput.textContent =
+            result.errores_lexicos?.join("\n") ||
+            "No se encontraron errores léxicos";
 
-                result.errores_sintacticos.forEach(error => {
-                    const match = error.match(/línea (\d+), columna (\d+)/i);
-                    if (match) {
-                        const line = parseInt(match[1]) - 1;
-                        const col = parseInt(match[2]) - 1;
-                        const from = { line, ch: col };
-                        const to = { line, ch: col + 1 };
-                        try {
-                            const mark = editor.markText(from, to, {
-                                className: 'cm-syntax-error',
-                                title: error
-                            });
-                            window.syntaxErrorMarks.push(mark);
-                        } catch (e) {
-                            console.warn('No se pudo marcar error sintáctico:', from, e);
-                        }
-                    }
-                });
+          // Mostrar errores sintácticos
+          if (
+            result.errores_sintacticos &&
+            result.errores_sintacticos.length > 0
+          ) {
+            sintacticoOutput.innerHTML = result.errores_sintacticos
+              .map((error) => {
+                return `<div class="error-item">${error}</div>`;
+              })
+              .join("");
 
-            } else {
-                sintacticoOutput.innerHTML = '<div style="color: green; padding: 10px;">✓ No se encontraron errores sintácticos</div>';
-                // Limpiar errores anteriores si ya no hay
-                window.syntaxErrorMarks?.forEach(mark => mark.clear());
-                window.syntaxErrorMarks = [];
-            }
+            // 🆕 Subrayar errores sintácticos en el editor
+            window.syntaxErrorMarks?.forEach((mark) => mark.clear());
+            window.syntaxErrorMarks = [];
 
-            
-            // Mostrar resultado general
-            if (!result.errores_lexicos?.length && !result.errores_sintacticos?.length) {
-                resultadosOutput.textContent = "Compilación exitosa: Análisis léxico y sintáctico completados sin errores";
-            } else {
-                const totalErrores = (result.errores_lexicos?.length || 0) + (result.errores_sintacticos?.length || 0);
-                resultadosOutput.textContent = `Compilación completada con ${totalErrores} error(es)`;
-            }
-        
+            result.errores_sintacticos.forEach((error) => {
+              const match = error.match(/línea (\d+), columna (\d+)/i);
+              if (match) {
+                const line = parseInt(match[1]) - 1;
+                const col = parseInt(match[2]) - 1;
+                const from = { line, ch: col };
+                const to = { line, ch: col + 1 };
+                try {
+                  const mark = editor.markText(from, to, {
+                    className: "cm-syntax-error",
+                    title: error,
+                  });
+                  window.syntaxErrorMarks.push(mark);
+                } catch (e) {
+                  console.warn("No se pudo marcar error sintáctico:", from, e);
+                }
+              }
+            });
+          } else {
+            sintacticoOutput.innerHTML =
+              '<div style="color: green; padding: 10px;">✓ No se encontraron errores sintácticos</div>';
+            // Limpiar errores anteriores si ya no hay
+            window.syntaxErrorMarks?.forEach((mark) => mark.clear());
+            window.syntaxErrorMarks = [];
+          }
+
+          // --- INICIA CÓDIGO ACTUALIZADO ---
+
+          // Obtener el panel de errores semánticos usando el ID de tu HTML
+          const semanticoErrorsOutput =
+            document.getElementById("errores-semanticos");
+
+          // Mostrar errores semánticos en la pestaña correcta
+          if (
+            result.errores_semanticos &&
+            result.errores_semanticos.length > 0
+          ) {
+            semanticoErrorsOutput.innerHTML = result.errores_semanticos
+              .map((error) => {
+                return `<div class="error-item">${error}</div>`;
+              })
+              .join("");
+          } else if (
+            !result.errores_lexicos?.length &&
+            !result.errores_sintacticos?.length
+          ) {
+            // Solo mostrar mensaje de éxito si no hay otros errores
+            semanticoErrorsOutput.innerHTML =
+              '<div style="color: green; padding: 10px;">✓ No se encontraron errores semánticos</div>';
+          } else {
+            // Si hay otros errores, informar que el análisis no se ejecutó
+            semanticoErrorsOutput.innerHTML = `
+        <div class="info-message">
+            <i class="fas fa-info-circle"></i>
+            El análisis semántico no se ejecutó debido a errores previos.
+        </div>
+    `;
+          }
+
+          // Actualizar el resumen general en la pestaña "Resultados"
+          const resultadosOutput = document.getElementById("resultados"); // Apunta al div de resultados
+          const totalErrores =
+            (result.errores_lexicos?.length || 0) +
+            (result.errores_sintacticos?.length || 0) +
+            (result.errores_semanticos?.length || 0);
+
+          if (totalErrores > 0) {
+            resultadosOutput.textContent = `Compilación completada con ${totalErrores} error(es).`;
+          } else {
+            resultadosOutput.textContent =
+              "Compilación exitosa: Análisis léxico, sintáctico y semántico completados sin errores.";
+          }
+
+          // Mostrar resultado general
+          if (
+            !result.errores_lexicos?.length &&
+            !result.errores_sintacticos?.length
+          ) {
+            resultadosOutput.textContent =
+              "Compilación exitosa: Análisis léxico y sintáctico completados sin errores";
+          } else {
+            const totalErrores =
+              (result.errores_lexicos?.length || 0) +
+              (result.errores_sintacticos?.length || 0);
+            resultadosOutput.textContent = `Compilación completada con ${totalErrores} error(es)`;
+          }
         } catch (error) {
             console.error('Error en compilación:', error);
             lexicoOutput.textContent = `Error: ${error.message}`;
