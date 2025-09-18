@@ -1,0 +1,2 @@
+Error Semántico en línea 9, columna 9: La condición de un 'if' debe ser de tipo numérico o booleano, pero se encontró 'string'.
+Error Semántico en línea 14, columna 12: La condición de un 'while' debe ser de tipo numérico o booleano, pero se encontró 'string'.
