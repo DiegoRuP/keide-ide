@@ -270,10 +270,6 @@ body.dark-mode .resize-handle:hover {
     flex-wrap: nowrap !important;
 }
 
-.h-90 {
-    height: 70vh;
-}
-
 /* CodeMirror adjustments */
 .CodeMirror {
     height: calc(100% - 40px) !important; /* Account for tab height */
@@ -284,7 +280,6 @@ body.dark-mode .resize-handle:hover {
 .col-md-9, .col-md-3 {
     height: 100%;
     position: relative;
-    transition: width 0.2s;
 }
 
 /* Resize handle horizontal */
@@ -315,7 +310,8 @@ body.dark-mode .resize-handle-horizontal:hover {
 .resize-container-vertical {
     position: relative;
     overflow: hidden;
-    height: 300px; /* Altura inicial */
+    height: 250px; /* Altura inicial */
+    flex-shrink: 0;
 }
 
 /* Ajustes de layout principal */

@@ -30,9 +30,13 @@ venv/
 .venv/
 
 # Archivos generados por el compilador
-compiler/errores.txt
+compiler/ast_visual.png
+compiler/ast.txt
+compiler/errores_semanticos.txt
+compiler/errores_sintacticos.txt
 compiler/salida.html
 compiler/tokens.txt
+compiler/errores.txt
 
 # Archivos de sistema
 .DS_Store
@@ -41,4 +45,3 @@ Thumbs.db
 # Archivos de construcción
 build/
 dist/
-

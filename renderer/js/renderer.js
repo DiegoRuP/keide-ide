@@ -48,10 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const container = document.querySelector('main');
         const containerRect = container.getBoundingClientRect();
-        const newHeight = containerRect.bottom - e.clientY - 60; /* Ajuste para el header */
+        const newHeight = containerRect.bottom - e.clientY;
+
+        const minHeight = 80; // Altura mínima para los logs
+        const maxHeight = containerRect.height - 150; // Altura máxima para los logs
         
-        logsContainer.style.height = `${newHeight}px`;
-        editorAnalysisContainer.style.height = `calc(100% - ${newHeight}px)`;
+        const constrainedHeight = Math.min(Math.max(newHeight, minHeight), maxHeight);
+
+        logsContainer.style.height = `${constrainedHeight}px`;
+        editorAnalysisContainer.style.height = `calc(100% - ${constrainedHeight}px)`;
         editor.refresh();
     });
 
