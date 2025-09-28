@@ -9,10 +9,13 @@ class SymbolTable:
     def __init__(self):
         # La pila de ámbitos. El primero es siempre el ámbito global.
         self.scopes = [{'__name__': 'global'}]
-        
+        # Historial de ámbitos
+        self.scope_history = [{'__name__': 'global'}]
+
     def enter_scope(self, name):
         """Entra en un nuevo ámbito (ej. al entrar a una función)."""
         self.scopes.append({'__name__': name})
+        self.scope_history.append({'__name__': name})
 
     def exit_scope(self):
         """Sale del ámbito actual."""
@@ -22,11 +25,18 @@ class SymbolTable:
 
     def define(self, name, symbol_type, line, column):
         """Define un nuevo símbolo en el ámbito ACTUAL."""
-        current_scope = self.scopes[-1]
-        if name in current_scope:
+        current_scope_for_history = self.scope_history[-1]
+        current_scope_for_lookup = self.scopes[-1]
+        
+        if name in current_scope_for_lookup:
             return (f"Error Semántico en línea {line}, columna {column}: "
-                    f"La variable '{name}' ya ha sido declarada en el ámbito '{current_scope['__name__']}'.")
-        current_scope[name] = {'type': symbol_type, 'line': line, 'column': column}
+                    f"La variable '{name}' ya ha sido declarada en el ámbito '{current_scope_for_lookup['__name__']}'.")
+        
+        symbol_info = {'type': symbol_type, 'line': line, 'column': column}
+        
+        current_scope_for_lookup[name] = symbol_info
+        current_scope_for_history[name] = symbol_info
+        
         return None
 
     def lookup(self, name):
@@ -38,7 +48,7 @@ class SymbolTable:
     
     def to_dict(self):
         """Convierte la tabla de símbolos a un diccionario para fácil visualización."""
-        return self.scopes
+        return self.scope_history
 
 class SemanticAnalyzer:
     """
@@ -48,7 +58,7 @@ class SemanticAnalyzer:
     def __init__(self):
         self.symbol_table = SymbolTable()
         self.errors = []
-        self.memory_counter = 1000
+        # self.memory_counter = 1000
 
     def analyze(self, node):
         self.visit(node)
@@ -82,7 +92,9 @@ class SemanticAnalyzer:
 
     def visit_function_declaration(self, node):
         func_name = node.value
-        return_type = node.children[0].value
+        return_type_node = node.children[0]
+        return_type = return_type_node.value
+        
         error = self.symbol_table.define(func_name, f"function(returns {return_type})", node.line, node.column)
         if error:
             self.errors.append(error)
@@ -90,8 +102,36 @@ class SemanticAnalyzer:
         node.scope = self.get_current_scope_name()
         node.data_type = f"function(returns {return_type})"
         node.state = 'declarado'
-        node.memory_address = f"@{self.memory_counter}"
-        self.memory_counter += 4
+        # node.memory_address = f"@{self.memory_counter}"
+        # self.memory_counter += 4
+
+        self.symbol_table.enter_scope(func_name)
+        
+        param_list_node = node.children[1]
+        self.visit(param_list_node)
+        
+        self.symbol_table.exit_scope()
+        
+    def visit_parameter_list(self, node):
+        """Recorre cada nodo de parámetro en la lista."""
+        for param_node in node.children:
+            self.visit(param_node)
+
+    def visit_parameter(self, node):
+        """Define un parámetro en la tabla de símbolos y lo anota."""
+        param_name = node.value
+        param_type_node = node.children[0]
+        param_type = param_type_node.value
+        
+        error = self.symbol_table.define(param_name, param_type, node.line, node.column)
+        if error:
+            self.errors.append(error)
+        else:
+            node.scope = self.get_current_scope_name()
+            node.data_type = param_type
+            node.state = 'declarado'
+            # node.memory_address = f"@{self.memory_counter}"
+            # self.memory_counter += 4
 
     def visit_declaration(self, node):
         var_type = node.value
@@ -108,8 +148,8 @@ class SemanticAnalyzer:
                 var_node.scope = current_scope
                 var_node.data_type = var_type
                 var_node.state = 'declarado'
-                var_node.memory_address = f"@{self.memory_counter}"
-                self.memory_counter += 4
+                # var_node.memory_address = f"@{self.memory_counter}"
+                # self.memory_counter += 4
             
             if child.type == ASTNodeType.ASSIGNMENT:
                 child.scope = current_scope
@@ -174,16 +214,24 @@ class SemanticAnalyzer:
             return "error_type"
 
         result_type = "error_type"
+        
         if op in ['+', '-', '*', '/', '%']:
             if left_type in ['int', 'float'] and right_type in ['int', 'float']:
                 result_type = 'float' if 'float' in [left_type, right_type] else 'int'
             elif op == '+' and left_type == 'string' and right_type == 'string':
+                result_type = 'string'
+            elif op == '+' and (left_type == 'string' and right_type in ['int', 'float']):
+                result_type = 'string'
+            elif op == '+' and (right_type == 'string' and left_type in ['int', 'float']):
                 result_type = 'string'
             else:
                 self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: Operador '{op}' no compatible entre tipos '{left_type}' y '{right_type}'.")
         
         elif op in ['<', '<=', '>', '>=', '==', '!=']:
             if left_type in ['int', 'float'] and right_type in ['int', 'float']:
+                result_type = 'boolean'
+                
+            elif op in ['==', '!='] and left_type == 'string' and right_type == 'string':
                 result_type = 'boolean'
             else:
                 self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: No se pueden comparar los tipos '{left_type}' y '{right_type}'.")
@@ -259,8 +307,8 @@ def semantic_tree_to_html(node):
         sem_info.append(f'Ámbito: {node.scope}')
     if node.state:
         sem_info.append(f'Estado: {node.state}')
-    if node.memory_address:
-        sem_info.append(f'Mem: {node.memory_address}')
+    # if node.memory_address:
+    #     sem_info.append(f'Mem: {node.memory_address}')
 
     if sem_info:
         html += f' <span class="sem-info">({", ".join(sem_info)})</span>'

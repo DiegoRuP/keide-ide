@@ -39,7 +39,7 @@ class ASTNode:
         self.data_type = None
         self.scope = None
         self.state = None
-        self.memory_address = None
+        # self.memory_address = None # Dirección de memoria asignada
     
     def to_dict(self):
         return {
@@ -53,7 +53,7 @@ class ASTNode:
             'data_type': self.data_type,
             'scope': self.scope,
             'state': self.state,
-            'memory_address': self.memory_address
+            # 'memory_address': self.memory_address
         }
 
 class SyntaxError:

@@ -42,7 +42,7 @@ def populate_hash_table_from_symbol_table(symbol_table_scopes, hash_table_size=1
                 'scope': scope.get('__name__'),
                 'line': details.get('line'),
                 'column': details.get('column'),
-                'memory_address': details.get('memory_address') # Asumimos que la anotación ya ocurrió
+                # 'memory_address': details.get('memory_address') 
             }
             hash_table.insert(symbol_data)
             
@@ -75,7 +75,7 @@ def hash_table_to_html(hash_table):
                 symbol_details = (
                     f"<b>Tipo:</b> {symbol.get('type', '?')} <br>"
                     f"<b>Ámbito:</b> {symbol.get('scope', '?')} <br>"
-                    f"<b>Mem:</b> {symbol.get('memory_address', '?')} <br>"
+                    # f"<b>Mem:</b> {symbol.get('memory_address', '?')} <br>"
                     f"<b>Pos:</b> L{symbol.get('line', '?')}, C{symbol.get('column', '?')}"
                 )
                 
