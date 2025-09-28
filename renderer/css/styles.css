@@ -491,12 +491,13 @@ body.dark-mode #lexico .token-position {
 }
 
 /* Estilos para el AST en el panel sintáctico */
-#sintactico {
-    max-height: 400px;
-    overflow-y: auto;
-    overflow-x: auto;
-    padding: 15px;
+#lexico, #sintactico, #semantico {
+    height: calc(100vh - 220px); /* Altura calculada (ajusta 220px si es necesario) */
+    overflow: auto; /* Scroll en X y Y cuando el contenido lo requiera */
+    padding: 15px; /* Un padding consistente */
+    /* No necesitan borde ni fondo, ya que el contenedor .tab-content los provee */
 }
+
 
 .ast-container {
     font-size: 13px;
@@ -585,43 +586,41 @@ body.dark-mode .info-message {
 
 /* Scrollbar personalizado para los paneles */
 #lexico::-webkit-scrollbar,
-#sintactico::-webkit-scrollbar {
+#sintactico::-webkit-scrollbar,
+#semantico::-webkit-scrollbar {
+
     width: 8px;
     height: 8px;
 }
 
 #lexico::-webkit-scrollbar-track,
-#sintactico::-webkit-scrollbar-track {
+#sintactico::-webkit-scrollbar-track,
+#semantico::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
 body.dark-mode #lexico::-webkit-scrollbar-track,
-body.dark-mode #sintactico::-webkit-scrollbar-track {
+body.dark-mode #sintactico::-webkit-scrollbar-track,
+body.dark-mode #semantico::-webkit-scrollbar-track {
     background: #2d2d2d;
 }
 
 #lexico::-webkit-scrollbar-thumb,
-#sintactico::-webkit-scrollbar-thumb {
+#sintactico::-webkit-scrollbar-thumb,
+#semantico::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 4px;
 }
 
 #lexico::-webkit-scrollbar-thumb:hover,
-#sintactico::-webkit-scrollbar-thumb:hover {
+#sintactico::-webkit-scrollbar-thumb:hover,
+#semantico::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
-body.dark-mode #lexico::-webkit-scrollbar-thumb {
-    background: #555;
-}
-
-body.dark-mode #lexico::-webkit-scrollbar-thumb:hover {
-    background: #777;
-}
-
-/* Ajustes para la pestaña de análisis sintáctico */
-.tab-pane#sintactico {
+/* Ajustes para la pestaña de análisis */
+.tab-pane#sintactico, .tab-pane#semantico, .tab-pane#lexico {
     max-height: 400px;
     overflow-y: auto;
     overflow-x: auto;
@@ -630,7 +629,18 @@ body.dark-mode #lexico::-webkit-scrollbar-thumb:hover {
     border: 1px solid #ddd;
 }
 
-body.dark-mode .tab-pane#sintactico {
+body.dark-mode .tab-pane#sintactico{
+    background-color: #333;
+    color: #E0E0E0;
+    border-color: #292929;
+}
+
+body.dark-mode .tab-pane#semantico {
+    background-color: #333;
+    color: #E0E0E0;
+    border-color: #292929;
+}
+body.dark-mode .tab-pane#lexico {
     background-color: #333;
     color: #E0E0E0;
     border-color: #292929;

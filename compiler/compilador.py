@@ -4,7 +4,7 @@ import json
 from analizador_lexico import LexicalAnalyzer, TokenType
 from analizador_sintactico import analyze_syntax, format_ast_tree, ast_to_html
 from analizador_sintactico import export_ast_graphviz
-from analizador_semantico import SemanticAnalyzer 
+from analizador_semantico import SemanticAnalyzer, semantic_tree_to_html
 import traceback
 import os
 
@@ -55,6 +55,7 @@ def compilar(codigo):
     errores_sintacticos = []
     ast_text = ""
     ast_html = ""
+    semantic_tree_html = ""
     
     if not errores_lexicos:
         ast, errores_sintacticos = analyze_syntax(tokens)
@@ -76,12 +77,14 @@ def compilar(codigo):
             for error in errores_sintacticos:
                 f.write(str(error) + "\n")
 
-    # Análisis semántico (solo si no hay errores léxicos ni sintácticos)
+    # Análisis semántico 
     errores_semanticos = []
     tabla_de_simbolos = {}  # Inicializamos la tabla
     if not errores_lexicos and not errores_sintacticos:
         sem_analyzer = SemanticAnalyzer()
         errores_semanticos, tabla_de_simbolos = sem_analyzer.analyze(ast)
+
+        semantic_tree_html = semantic_tree_to_html(ast)
 
         # Guardar errores semánticos en archivo
         with open(os.path.join(BASE_DIR, "errores_semanticos.txt"), "w", encoding="utf-8") as f:
@@ -116,6 +119,7 @@ def compilar(codigo):
         'ast': ast.to_dict() if ast else None,
         'ast_text': ast_text,
         'ast_html': ast_html,
+        'semantic_tree_html': semantic_tree_html,
         'errores_sintacticos': [str(e) for e in errores_sintacticos],
         'errores_semanticos': [str(e) for e in errores_semanticos],
         'tabla_de_simbolos': tabla_de_simbolos, #Incluir la tabla en la salida

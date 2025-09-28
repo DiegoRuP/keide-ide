@@ -34,6 +34,12 @@ class ASTNode:
         self.children = children if children else []
         self.line = line
         self.column = column
+        
+        # Atributos adicionales para análisis semántico
+        self.data_type = None
+        self.scope = None
+        self.state = None
+        self.memory_address = None
     
     def to_dict(self):
         return {
@@ -41,7 +47,13 @@ class ASTNode:
             'value': self.value,
             'line': self.line,
             'column': self.column,
-            'children': [child.to_dict() if child else None for child in self.children]
+            'children': [child.to_dict() if child else None for child in self.children],
+            
+            # Atributos adicionales para análisis semántico
+            'data_type': self.data_type,
+            'scope': self.scope,
+            'state': self.state,
+            'memory_address': self.memory_address
         }
 
 class SyntaxError:

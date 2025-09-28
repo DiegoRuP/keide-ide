@@ -37,6 +37,7 @@ function setupCompiler() {
         const resultadosOutput = document.getElementById('output-resultados');
         const panelTokens = document.getElementById('lexico'); // El panel de la lista de tokens
         const panelAST = document.getElementById('sintactico'); // El panel del AST
+        const panelSemantico = document.getElementById('semantico'); // El panel del árbol semántico
         
         if (!code.trim()) {
             lexicoOutput.textContent = "Error: El editor está vacío";
@@ -96,6 +97,24 @@ function setupCompiler() {
           } else {
               panelAST.innerHTML = `<div class="info-message">No se generó el árbol sintáctico.</div>`;
           }
+
+          // Mostrar árbol semántico en el panel semántico
+          if (result.semantic_tree_html) {
+                panelSemantico.innerHTML = `<div class="ast-container">${result.semantic_tree_html}</div>`;
+                panelSemantico.querySelectorAll(".ast-label").forEach((label) => {
+                    label.addEventListener("click", function (e) {
+                        e.stopPropagation();
+                        const parent = label.parentElement;
+                        if (parent.classList.contains("ast-node")) {
+                            parent.classList.toggle("collapsed");
+                        }
+                    });
+                });
+            } else if (result.errores_lexicos?.length || result.errores_sintacticos?.length) {
+                panelSemantico.innerHTML = `<div class="info-message">No se generó el árbol semántico por errores previos.</div>`;
+            } else {
+                panelSemantico.innerHTML = `<div class="info-message">Presiona "Compilar" para generar el árbol semántico.</div>`;
+            }
 
         // Mostrar errores léxicos
           lexicoOutput.innerHTML = result.errores_lexicos?.length
