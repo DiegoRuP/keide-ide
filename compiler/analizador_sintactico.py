@@ -23,6 +23,9 @@ class ASTNodeType(Enum):
     INPUT_STATEMENT = auto()
     OUTPUT_STATEMENT = auto()
     BOOLEAN = auto()
+    FUNCTION_DECLARATION = auto() 
+    PARAMETER_LIST = auto()      
+    PARAMETER = auto()            
 
 class ASTNode:
     def __init__(self, node_type, value=None, children=None, line=None, column=None):
@@ -156,37 +159,144 @@ class SyntacticAnalyzer:
     # REGLAS GRAMATICALES - SIN VERIFICACIÓN SEMÁNTICA
     
     def program(self):
-        """program -> main { statement* }"""
+        """program -> (global_declaration)* main_block"""
         first_token = self.current_token()
         node = ASTNode(ASTNodeType.PROGRAM, line=first_token.line if first_token else 1, 
-                      column=first_token.column if first_token else 1)
+                       column=first_token.column if first_token else 1)
+
+        # Procesar declaraciones globales hasta encontrar 'main'
+        while self.current_token() and not self.match(TokenType.KEYWORD, "main"):
+            declaration = self.global_declaration()
+            if declaration:
+                node.children.append(declaration)
+            else:
+                # Si no podemos parsear una declaración global, avanzamos para evitar un bucle infinito
+                self.error("Se esperaba una declaración de variable global, una función o 'main'")
+                self.consume() 
+
+        # Procesar el bloque main
+        main_node = self.main_block()
+        if main_node:
+            node.children.append(main_node)
+
+        return node
+    
+    # Regla para distinguir entre declaración de variable o de función
+    def global_declaration(self):
+        """Distingue si es una declaración de variable global o de función"""
+        if not self.match(TokenType.KEYWORD) or self.current_token().value not in ["int", "float", "string"]:
+            return None
         
-        # main
+        # Miramos hacia adelante: si después del tipo e identificador hay un '(', es una función
+        if self.peek(2) and self.peek(2).type == TokenType.SYMBOL and self.peek(2).value == '(':
+            return self.function_declaration()
+        else:
+            return self.declaration()
+        
+    def function_declaration(self):
+        """function_declaration -> type identifier ( parameter_list ) { ... }"""
+        type_token = self.consume() # Tipo de retorno
+        name_token = self.consume(TokenType.IDENTIFIER) # Nombre de la función
+        
+        if not type_token or not name_token:
+            self.sync_to_semicolon()
+            return None
+
+        node = ASTNode(ASTNodeType.FUNCTION_DECLARATION, value=name_token.value, 
+                       children=[ASTNode(ASTNodeType.IDENTIFIER, value=type_token.value)], # Hijo 0: tipo de retorno
+                       line=name_token.line, column=name_token.column)
+
+        self.consume(TokenType.SYMBOL, '(')
+
+        # Parámetros
+        params_node = self.parse_parameter_list()
+        node.children.append(params_node)
+
+        self.consume(TokenType.SYMBOL, ')')
+        self.consume(TokenType.SYMBOL, '{')
+        
+        # Por ahora, ignoramos el cuerpo de la función para simplificar
+        # Simplemente avanzamos hasta encontrar la llave de cierre
+        brace_level = 1
+        while self.current_token() and brace_level > 0:
+            if self.match(TokenType.SYMBOL, '{'):
+                brace_level += 1
+            elif self.match(TokenType.SYMBOL, '}'):
+                brace_level -= 1
+            
+            if brace_level == 0:
+                break
+            self.consume()
+
+        self.consume(TokenType.SYMBOL, '}')
+        
+        return node
+    
+
+    def parse_parameter_list(self):
+        """
+        parameter_list -> (parameter (, parameter)*)?
+        """
+        list_token = self.current_token()
+        params_node = ASTNode(ASTNodeType.PARAMETER_LIST, line=list_token.line, column=list_token.column)
+        
+        # Si el siguiente token es ')', no hay parámetros
+        if self.match(TokenType.SYMBOL, ')'):
+            return params_node
+
+        # Parsear el primer parámetro
+        param = self.parse_parameter()
+        if param:
+            params_node.children.append(param)
+
+        # Parsear parámetros subsecuentes separados por coma
+        while self.match(TokenType.SYMBOL, ','):
+            self.consume() # Consumir la coma
+            param = self.parse_parameter()
+            if param:
+                params_node.children.append(param)
+        
+        return params_node
+    
+    def parse_parameter(self):
+        """
+        parameter -> type identifier
+        """
+        # Espera un tipo como 'int', 'string', etc.
+        type_token = self.consume(TokenType.KEYWORD)
+        id_token = self.consume(TokenType.IDENTIFIER)
+        
+        if not type_token or not id_token:
+            self.error("Definición de parámetro inválida. Se esperaba 'tipo nombre'.")
+            return None
+        
+        # El nodo PARAMETER tiene el nombre como 'value' y el tipo como un hijo
+        param_node = ASTNode(ASTNodeType.PARAMETER, value=id_token.value, 
+                             children=[ASTNode(ASTNodeType.IDENTIFIER, value=type_token.value)],
+                             line=id_token.line, column=id_token.column)
+        return param_node
+        
+    def main_block(self):
+        """main_block -> main { statement* }"""
         main_token = self.consume(TokenType.KEYWORD, "main")
         if not main_token:
-            return node
+            self.error("Se esperaba la función 'main'")
+            return None
             
         main_node = ASTNode(ASTNodeType.MAIN, "main", [], main_token.line, main_token.column)
         
-        # {
-        brace_token = self.consume(TokenType.SYMBOL, "{")
-        if not brace_token:
-            # Intentar continuar de todos modos
-            pass
+        if not self.consume(TokenType.SYMBOL, "{"):
+            return main_node # Retornar nodo aunque falte la llave
         
-        # statements
         while self.current_token() and not self.match(TokenType.SYMBOL, "}"):
             stmt = self.statement()
             if stmt:
                 main_node.children.append(stmt)
         
-        # }
-        closing_brace = self.consume(TokenType.SYMBOL, "}")
-        if not closing_brace:
-            self.error("Se esperaba '}' para cerrar el bloque main")
+        if not self.consume(TokenType.SYMBOL, "}"):
+            self.error("Falta '}' para cerrar el bloque main")
         
-        node.children.append(main_node)
-        return node
+        return main_node
     
     def statement(self):
         """statement -> declaration | assignment | if_statement | while_statement | 
@@ -248,22 +358,37 @@ class SyntacticAnalyzer:
             
         node = ASTNode(ASTNodeType.DECLARATION, type_token.value, [], type_token.line, type_token.column)
         
-        # Primera variable
-        id_token = self.consume(TokenType.IDENTIFIER)
-        if id_token:
-            var_node = ASTNode(ASTNodeType.IDENTIFIER, id_token.value, [], id_token.line, id_token.column)
-            node.children.append(var_node)
-        else:
-            self.sync_to_semicolon()
-            return node
-        
-        # Variables adicionales
-        while self.match(TokenType.SYMBOL, ","):
-            comma_token = self.consume()  # Consumir ,
+        # --- INICIO DE LA MODIFICACIÓN ---
+
+        def parse_var_declarator(declaration_node):
+            """Función auxiliar para parsear 'identificador (= expresion)?'"""
             id_token = self.consume(TokenType.IDENTIFIER)
-            if id_token:
-                var_node = ASTNode(ASTNodeType.IDENTIFIER, id_token.value, [], id_token.line, id_token.column)
-                node.children.append(var_node)
+            if not id_token:
+                return
+
+            if self.match(TokenType.ASSIGNMENT):
+                # Caso con inicialización: int x = 10;
+                # Creamos un nodo de asignación como hijo de la declaración.
+                eq_token = self.consume()
+                expr_node = self.expression()
+                
+                id_node = ASTNode(ASTNodeType.IDENTIFIER, id_token.value, [], id_token.line, id_token.column)
+                assign_node = ASTNode(ASTNodeType.ASSIGNMENT, "=", [id_node, expr_node], eq_token.line, eq_token.column)
+                declaration_node.children.append(assign_node)
+            else:
+                # Caso sin inicialización: int x;
+                id_node = ASTNode(ASTNodeType.IDENTIFIER, id_token.value, [], id_token.line, id_token.column)
+                declaration_node.children.append(id_node)
+
+        # Parsear la primera variable (y su posible inicialización)
+        parse_var_declarator(node)
+        
+        # Parsear variables adicionales separadas por comas
+        while self.match(TokenType.SYMBOL, ","):
+            self.consume() # Consumir la coma
+            parse_var_declarator(node)
+
+        # --- FIN DE LA MODIFICACIÓN ---
         
         if not self.consume(TokenType.SYMBOL, ";"):
             self.error("Falta ';' al final de la declaración")

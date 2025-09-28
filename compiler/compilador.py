@@ -78,14 +78,19 @@ def compilar(codigo):
 
     # Análisis semántico (solo si no hay errores léxicos ni sintácticos)
     errores_semanticos = []
+    tabla_de_simbolos = {}  # Inicializamos la tabla
     if not errores_lexicos and not errores_sintacticos:
         sem_analyzer = SemanticAnalyzer()
-        errores_semanticos = sem_analyzer.analyze(ast)
+        errores_semanticos, tabla_de_simbolos = sem_analyzer.analyze(ast)
 
         # Guardar errores semánticos en archivo
         with open(os.path.join(BASE_DIR, "errores_semanticos.txt"), "w", encoding="utf-8") as f:
             for error in errores_semanticos:
                 f.write(error + "\n")
+
+        # Guardar tabla de símbolos en archivo
+        with open(os.path.join(BASE_DIR, "tabla_de_simbolos.json"), "w", encoding="utf-8") as f:
+            json.dump(tabla_de_simbolos, f, indent=4)
     
     # Guardar HTML coloreado
     html_coloreado = analizador.generate_html(codigo)
@@ -113,6 +118,7 @@ def compilar(codigo):
         'ast_html': ast_html,
         'errores_sintacticos': [str(e) for e in errores_sintacticos],
         'errores_semanticos': [str(e) for e in errores_semanticos],
+        'tabla_de_simbolos': tabla_de_simbolos, #Incluir la tabla en la salida
         'html_coloreado': html_coloreado
     })
 
