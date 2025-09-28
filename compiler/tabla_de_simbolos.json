@@ -1,19 +1,14 @@
 [
     {
         "__name__": "global",
-        "global_level": {
+        "global_multiplier": {
             "type": "int",
-            "line": 7,
+            "line": 3,
             "column": 5
-        },
-        "system_status": {
-            "type": "string",
-            "line": 9,
-            "column": 8
         },
         "calculate_damage": {
             "type": "function(returns int)",
-            "line": 15,
+            "line": 6,
             "column": 5
         }
     },
@@ -21,41 +16,41 @@
         "__name__": "calculate_damage",
         "power": {
             "type": "int",
-            "line": 15,
+            "line": 6,
             "column": 26
         },
         "defense": {
             "type": "int",
-            "line": 15,
+            "line": 6,
             "column": 37
+        },
+        "base_damage": {
+            "type": "int",
+            "line": 7,
+            "column": 9
+        },
+        "final_damage": {
+            "type": "int",
+            "line": 8,
+            "column": 9
+        },
+        "i": {
+            "type": "int",
+            "line": 11,
+            "column": 9
         }
     },
     {
         "__name__": "main",
         "score": {
             "type": "int",
-            "line": 25,
+            "line": 15,
             "column": 9
-        },
-        "health": {
-            "type": "float",
-            "line": 27,
-            "column": 11
-        },
-        "mission": {
-            "type": "string",
-            "line": 29,
-            "column": 12
         },
         "i": {
             "type": "int",
-            "line": 53,
+            "line": 18,
             "column": 9
-        },
-        "system_status": {
-            "type": "string",
-            "line": 67,
-            "column": 12
         }
     }
 ]

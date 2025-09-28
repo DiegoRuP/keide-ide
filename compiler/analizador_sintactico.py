@@ -206,42 +206,36 @@ class SyntacticAnalyzer:
             return self.declaration()
         
     def function_declaration(self):
-        """function_declaration -> type identifier ( parameter_list ) { ... }"""
-        type_token = self.consume() # Tipo de retorno
-        name_token = self.consume(TokenType.IDENTIFIER) # Nombre de la función
+        """function_declaration -> type identifier ( parameter_list ) { statement* }"""
+        type_token = self.consume()
+        name_token = self.consume(TokenType.IDENTIFIER)
         
         if not type_token or not name_token:
             self.sync_to_semicolon()
             return None
 
         node = ASTNode(ASTNodeType.FUNCTION_DECLARATION, value=name_token.value, 
-                       children=[ASTNode(ASTNodeType.IDENTIFIER, value=type_token.value)], # Hijo 0: tipo de retorno
+                       children=[ASTNode(ASTNodeType.IDENTIFIER, value=type_token.value, line=type_token.line, column=type_token.column)],
                        line=name_token.line, column=name_token.column)
 
         self.consume(TokenType.SYMBOL, '(')
-
-        # Parámetros
         params_node = self.parse_parameter_list()
         node.children.append(params_node)
-
         self.consume(TokenType.SYMBOL, ')')
+
         self.consume(TokenType.SYMBOL, '{')
         
-        # Por ahora, ignoramos el cuerpo de la función para simplificar
-        # Simplemente avanzamos hasta encontrar la llave de cierre
-        brace_level = 1
-        while self.current_token() and brace_level > 0:
-            if self.match(TokenType.SYMBOL, '{'):
-                brace_level += 1
-            elif self.match(TokenType.SYMBOL, '}'):
-                brace_level -= 1
-            
-            if brace_level == 0:
-                break
-            self.consume()
-
-        self.consume(TokenType.SYMBOL, '}')
+        body_node = ASTNode(ASTNodeType.BLOCK, "body", [], line=name_token.line, column=name_token.column)
         
+        while self.current_token() and not self.match(TokenType.SYMBOL, "}"):
+            stmt = self.statement()
+            if stmt:
+                body_node.children.append(stmt)
+        
+        node.children.append(body_node) 
+        
+        self.consume(TokenType.SYMBOL, '}')
+
         return node
     
 

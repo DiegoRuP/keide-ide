@@ -1,4 +1,5 @@
 # analizador_semantico.py
+from platform import node
 from analizador_sintactico import ASTNodeType
 
 class SymbolTable:
@@ -86,30 +87,33 @@ class SemanticAnalyzer:
     def visit_main(self, node):
         self.symbol_table.enter_scope('main')
         node.scope = self.get_current_scope_name()
+        
         for statement in node.children:
             self.visit(statement)
         self.symbol_table.exit_scope()
-
+        
     def visit_function_declaration(self, node):
         func_name = node.value
         return_type_node = node.children[0]
         return_type = return_type_node.value
-        
+
         error = self.symbol_table.define(func_name, f"function(returns {return_type})", node.line, node.column)
         if error:
             self.errors.append(error)
-        
+
         node.scope = self.get_current_scope_name()
         node.data_type = f"function(returns {return_type})"
         node.state = 'declarado'
-        # node.memory_address = f"@{self.memory_counter}"
-        # self.memory_counter += 4
 
         self.symbol_table.enter_scope(func_name)
         
         param_list_node = node.children[1]
         self.visit(param_list_node)
         
+        if len(node.children) > 2:
+            body_node = node.children[2]
+            self.visit(body_node)
+
         self.symbol_table.exit_scope()
         
     def visit_parameter_list(self, node):
