@@ -5,6 +5,7 @@ from analizador_lexico import LexicalAnalyzer, TokenType
 from analizador_sintactico import analyze_syntax, format_ast_tree, ast_to_html
 from analizador_sintactico import export_ast_graphviz
 from analizador_semantico import SemanticAnalyzer, semantic_tree_to_html
+from tabla_hash import populate_hash_table_from_symbol_table, hash_table_to_html
 import traceback
 import os
 
@@ -80,12 +81,19 @@ def compilar(codigo):
     # Análisis semántico 
     errores_semanticos = []
     tabla_de_simbolos = {}  # Inicializamos la tabla
+    hash_table_html = "" # Inicializamos el HTML de la tabla hash
+    
     if not errores_lexicos and not errores_sintacticos:
         sem_analyzer = SemanticAnalyzer()
         errores_semanticos, tabla_de_simbolos = sem_analyzer.analyze(ast)
 
         semantic_tree_html = semantic_tree_to_html(ast)
-
+        
+        # Crear y poblar la tabla hash desde la tabla de símbolos
+        populated_hash_table = populate_hash_table_from_symbol_table(tabla_de_simbolos, hash_table_size=16)
+        # Generar HTML de la tabla hash
+        hash_table_html = hash_table_to_html(populated_hash_table)
+        
         # Guardar errores semánticos en archivo
         with open(os.path.join(BASE_DIR, "errores_semanticos.txt"), "w", encoding="utf-8") as f:
             for error in errores_semanticos:
@@ -120,6 +128,7 @@ def compilar(codigo):
         'ast_text': ast_text,
         'ast_html': ast_html,
         'semantic_tree_html': semantic_tree_html,
+        'hash_table_html': hash_table_html,
         'errores_sintacticos': [str(e) for e in errores_sintacticos],
         'errores_semanticos': [str(e) for e in errores_semanticos],
         'tabla_de_simbolos': tabla_de_simbolos, #Incluir la tabla en la salida

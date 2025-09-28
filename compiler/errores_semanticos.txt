@@ -1,7 +1,4 @@
-Error Semántico en línea 27, columna 40: No se pueden comparar los tipos 'string' y 'string'.
-Error Semántico en línea 27, columna 23: La condición de un 'if' debe ser evaluable a booleano, pero se encontró 'error_type'.
-Error Semántico en línea 37, columna 37: Operador '+' no compatible entre tipos 'string' y 'int'.
-Error Semántico en línea 45, columna 23: No se pueden comparar los tipos 'string' y 'string'.
-Error Semántico en línea 45, columna 23: La condición de un 'if' debe ser evaluable a booleano, pero se encontró 'error_type'.
-Error Semántico en línea 55, columna 5: La variable 'power_level' no ha sido declarada.
-Error Semántico en línea 58, columna 19: No se puede asignar un tipo 'int' a una variable de tipo 'string'.
+Error Semántico en línea 20, columna 40: No se pueden comparar los tipos 'string' y 'string'.
+Error Semántico en línea 20, columna 23: La condición de un 'if' debe ser evaluable a booleano, pero se encontró 'error_type'.
+Error Semántico en línea 29, columna 30: Operador '+' no compatible entre tipos 'string' y 'int'.
+Error Semántico en línea 40, columna 34: Operador '+' no compatible entre tipos 'string' y 'int'.

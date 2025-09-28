@@ -587,7 +587,8 @@ body.dark-mode .info-message {
 /* Scrollbar personalizado para los paneles */
 #lexico::-webkit-scrollbar,
 #sintactico::-webkit-scrollbar,
-#semantico::-webkit-scrollbar {
+#semantico::-webkit-scrollbar,
+#hashtable::-webkit-scrollbar {
 
     width: 8px;
     height: 8px;
@@ -595,32 +596,36 @@ body.dark-mode .info-message {
 
 #lexico::-webkit-scrollbar-track,
 #sintactico::-webkit-scrollbar-track,
-#semantico::-webkit-scrollbar-track {
+#semantico::-webkit-scrollbar-track,
+#hashtable::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
 body.dark-mode #lexico::-webkit-scrollbar-track,
 body.dark-mode #sintactico::-webkit-scrollbar-track,
-body.dark-mode #semantico::-webkit-scrollbar-track {
+body.dark-mode #semantico::-webkit-scrollbar-track,
+body.dark-mode #hashtable::-webkit-scrollbar-track {
     background: #2d2d2d;
 }
 
 #lexico::-webkit-scrollbar-thumb,
 #sintactico::-webkit-scrollbar-thumb,
-#semantico::-webkit-scrollbar-thumb {
+#semantico::-webkit-scrollbar-thumb,
+#hashtable::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 4px;
 }
 
 #lexico::-webkit-scrollbar-thumb:hover,
 #sintactico::-webkit-scrollbar-thumb:hover,
-#semantico::-webkit-scrollbar-thumb:hover {
+#semantico::-webkit-scrollbar-thumb:hover,
+#hashtable::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
 /* Ajustes para la pestaña de análisis */
-.tab-pane#sintactico, .tab-pane#semantico, .tab-pane#lexico {
+.tab-pane#sintactico, .tab-pane#semantico, .tab-pane#lexico, .tab-pane#hashtable {
     max-height: 400px;
     overflow-y: auto;
     overflow-x: auto;
@@ -825,4 +830,72 @@ body.dark-mode .ast-section h6 {
   display: none;
 }
 
+/* ========== ESTILOS PARA TABLA HASH ========== */
+
+.hash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.ht-header {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 2px solid #5e5e5e;
+}
+
+.ht-cell {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+}
+
+.ht-cell-index {
+    font-weight: bold;
+    text-align: center;
+    background-color: #f8f9fa;
+    width: 60px;
+}
+
+.ht-cell-name {
+    font-weight: bold;
+    color: #1565C0;
+}
+
+.ht-cell-details {
+    line-height: 1.5;
+}
+
+/* Estilo para resaltar colisiones */
+.collision-row {
+    background-color: rgba(239, 108, 0, 0.08); /* Fondo naranja muy suave */
+}
+.collision-row .ht-cell-index {
+    background-color: rgba(239, 108, 0, 0.15); /* Naranja más fuerte en el índice */
+    border-left: 3px solid #EF6C00;
+}
+
+/* Dark Mode */
+body.dark-mode .ht-header {
+    background-color: #3a3a3a;
+    border-bottom-color: #ccc;
+}
+body.dark-mode .ht-cell {
+    border-bottom-color: #444;
+}
+body.dark-mode .ht-cell-index {
+    background-color: #2d2d2d;
+}
+body.dark-mode .ht-cell-name {
+    color: #66b3ff;
+}
+body.dark-mode .collision-row {
+    background-color: rgba(255, 171, 64, 0.1);
+}
+body.dark-mode .collision-row .ht-cell-index {
+    background-color: rgba(255, 171, 64, 0.2);
+    border-left-color: #ffab40;
+}
 

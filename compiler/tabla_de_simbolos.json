@@ -1,19 +1,19 @@
 [
     {
         "__name__": "global",
-        "global_score": {
+        "global_level": {
             "type": "int",
-            "line": 6,
+            "line": 4,
             "column": 5
         },
-        "player_status": {
+        "system_status": {
             "type": "string",
-            "line": 7,
+            "line": 5,
             "column": 8
         },
-        "calculate_final_score": {
+        "calculate_damage": {
             "type": "function(returns int)",
-            "line": 11,
+            "line": 8,
             "column": 5
         }
     }

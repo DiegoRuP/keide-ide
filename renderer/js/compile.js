@@ -38,6 +38,7 @@ function setupCompiler() {
         const panelTokens = document.getElementById('lexico'); // El panel de la lista de tokens
         const panelAST = document.getElementById('sintactico'); // El panel del AST
         const panelSemantico = document.getElementById('semantico'); // El panel del árbol semántico
+        const panelHashTable = document.getElementById('hashtable'); // El panel de la tabla hash
         
         if (!code.trim()) {
             lexicoOutput.textContent = "Error: El editor está vacío";
@@ -116,6 +117,13 @@ function setupCompiler() {
                 panelSemantico.innerHTML = `<div class="info-message">Presiona "Compilar" para generar el árbol semántico.</div>`;
             }
 
+            // Mostrar tabla hash en el panel correspondiente
+            if (result.hash_table_html) {
+                panelHashTable.innerHTML = result.hash_table_html;
+            } else {
+                panelHashTable.innerHTML = `<div class="info-message">No se generó la tabla hash.</div>`;
+            }
+        
         // Mostrar errores léxicos
           lexicoOutput.innerHTML = result.errores_lexicos?.length
               ? result.errores_lexicos.map(e => `<div class="error-item">${e}</div>`).join('')
