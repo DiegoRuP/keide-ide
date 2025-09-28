@@ -367,42 +367,68 @@ main {
 .cm-error    { color: #D32F2F !important; font-weight: 700 !important; background-color: #FFCDD2 !important; }
 .cm-default  { color: inherit !important; }
 
-
-
-/* Contenedor de resultados */
-#output-resultados {
+/* Todos los paneles de salida/logs */
+.output-panel {
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto; 
+    overflow-x: hidden; 
+    padding: 15px;
     background-color: #f8f9fa;
-    min-height: 100px;
-}
-
-/* Modo oscuro */
-.dark-mode #output-resultados {
-    background-color: #2d2d2d;
-}
-
-#output-resultados {
-    background-color: #f8f9fa;
-    min-height: 100px;
-    max-height: 300px; /* Altura máxima */
-    overflow-y: auto; /* Desplazamiento vertical */
-}
-
-body.dark-mode #output-resultados {
-    background-color: #2d2d2d;
-}
-
-.tab-content .tab-pane#lexico {
-    max-height: 300px; /* Ajusta la altura máxima según sea necesario */
-    overflow-y: auto;  /* Habilita el desplazamiento vertical */
-    padding: 10px;
-    background-color: #f8f9fa; /* Fondo claro */
     border: 1px solid #ddd;
+    border-top: none; 
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-body.dark-mode .tab-content .tab-pane#lexico {
-    background-color: #333; /* Fondo oscuro */
-    color: #E0E0E0; /* Texto claro */
+/* Estilos para el modo oscuro */
+body.dark-mode .output-panel {
+    background-color: #2d2d2d;
+    color: #E0E0E0;
     border-color: #292929;
+}
+
+/* Contenedor de las pestañas de logs */
+.resize-container-vertical .tab-content {
+    height: calc(100% - 42px); /* Resta la altura de las pestañas */
+}
+
+/* Ajustes para que los paneles dentro de las pestañas se estiren */
+.tab-content .tab-pane {
+    height: 100%;
+    padding: 0; 
+}
+
+/* Scrollbar personalizado para los paneles (opcional pero recomendado) */
+.output-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.output-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+body.dark-mode .output-panel::-webkit-scrollbar-track {
+    background: #3c3c3c;
+}
+
+.output-panel::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.output-panel::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+body.dark-mode .output-panel::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+body.dark-mode .output-panel::-webkit-scrollbar-thumb:hover {
+    background: #777;
 }
 
 /* ========== ESTILOS PARA ANÁLISIS SINTÁCTICO ========== */
@@ -682,17 +708,18 @@ body.dark-mode .syntax-error-line {
 
 
 /* Panel de errores mejorado */
-
-
-#output-sintacticos .error-item {
-    padding: 8px;
-    margin: 5px 0;
+.output-panel .error-item {
+    padding: 8px 12px;
+    margin: 4px 0;
     border-left: 3px solid #f44336;
     background-color: rgba(244, 67, 54, 0.05);
+    line-height: 1.5;
+    word-wrap: break-word;
 }
 
-body.dark-mode #output-sintacticos .error-item {
+body.dark-mode .output-panel .error-item {
     background-color: rgba(244, 67, 54, 0.1);
+    border-color: #d32f2f;
 }
 
 /* Mensajes mejorados en el panel sintáctico */

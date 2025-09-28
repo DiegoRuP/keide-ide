@@ -1,0 +1,2 @@
+Error Semántico en línea 14, columna 13: La variable 'initial_score' no ha sido declarada.
+Error Semántico en línea 19, columna 15: No se puede asignar un tipo 'string' a una variable de tipo 'int'.

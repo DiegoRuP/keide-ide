@@ -1,19 +1,24 @@
 [
     {
         "__name__": "global",
-        "global_var": {
+        "score": {
             "type": "int",
             "line": 3,
             "column": 5
         },
-        "global_text": {
+        "player_name": {
             "type": "string",
             "line": 4,
             "column": 8
         },
-        "sumar": {
+        "level": {
+            "type": "int",
+            "line": 5,
+            "column": 5
+        },
+        "calculate_points": {
             "type": "function(returns int)",
-            "line": 6,
+            "line": 8,
             "column": 5
         }
     }
