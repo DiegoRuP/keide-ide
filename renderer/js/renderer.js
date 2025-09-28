@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cambiar el tema de CodeMirror
     function setCodeMirrorTheme(isDarkMode) {
         if (isDarkMode) {
-            editor.setOption("theme", "dracula"); // Tema oscuro
+            editor.setOption("theme", "material-ocean"); // Tema oscuro
         } else {
             editor.setOption("theme", "default"); // Tema claro
         }

@@ -232,7 +232,6 @@ body.dark-mode .tab-content {
 
 .btn-outline-light{
     border: none;
-    border-bottom: #5e5e5e 1px solid !important;
 }
 
 /* Resizable containers */
@@ -877,25 +876,38 @@ body.dark-mode .ast-section h6 {
     border-left: 3px solid #EF6C00;
 }
 
-/* Dark Mode */
+body.dark-mode .tab-pane#lexico,
+body.dark-mode .tab-pane#sintactico,
+body.dark-mode .tab-pane#semantico,
+body.dark-mode .tab-pane#hashtable {
+    background-color: #2d2d2d; /* Un fondo oscuro consistente */
+    border-color: #444;
+}
+
+/* 2. Refina los colores de la tabla hash para mejor contraste en modo oscuro */
 body.dark-mode .ht-header {
     background-color: #3a3a3a;
-    border-bottom-color: #ccc;
+    border-bottom-color: #555; /* Un borde más sutil */
+    color: #f1f1f1; /* Asegura que el texto del header sea claro */
 }
+
 body.dark-mode .ht-cell {
     border-bottom-color: #444;
 }
+
 body.dark-mode .ht-cell-index {
-    background-color: #2d2d2d;
+    background-color: #333;
 }
+
 body.dark-mode .ht-cell-name {
-    color: #66b3ff;
+    color: #82baff; /* Un azul más brillante y legible */
 }
+
 body.dark-mode .collision-row {
     background-color: rgba(255, 171, 64, 0.1);
 }
+
 body.dark-mode .collision-row .ht-cell-index {
     background-color: rgba(255, 171, 64, 0.2);
     border-left-color: #ffab40;
 }
-
