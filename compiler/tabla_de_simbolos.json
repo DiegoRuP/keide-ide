@@ -1,42 +1,27 @@
 [
     {
         "__name__": "global",
-        "global_multiplier": {
-            "type": "int",
-            "line": 3,
-            "column": 5
+        "global_var": {
+            "type": "string",
+            "line": 5,
+            "column": 8
         },
-        "calculate_damage": {
+        "test_function": {
             "type": "function(returns int)",
-            "line": 6,
+            "line": 7,
             "column": 5
         }
     },
     {
-        "__name__": "calculate_damage",
-        "power": {
-            "type": "int",
-            "line": 6,
-            "column": 26
-        },
-        "defense": {
-            "type": "int",
-            "line": 6,
-            "column": 37
-        },
-        "base_damage": {
+        "__name__": "test_function",
+        "param1": {
             "type": "int",
             "line": 7,
-            "column": 9
+            "column": 23
         },
-        "final_damage": {
+        "local_var": {
             "type": "int",
-            "line": 8,
-            "column": 9
-        },
-        "i": {
-            "type": "int",
-            "line": 11,
+            "line": 9,
             "column": 9
         }
     },
@@ -47,9 +32,29 @@
             "line": 15,
             "column": 9
         },
-        "i": {
+        "error_tipo_1": {
             "type": "int",
-            "line": 18,
+            "line": 20,
+            "column": 9
+        },
+        "error_tipo_2": {
+            "type": "string",
+            "line": 23,
+            "column": 12
+        },
+        "error_operacion_1": {
+            "type": "string",
+            "line": 27,
+            "column": 12
+        },
+        "error_operacion_2": {
+            "type": "string",
+            "line": 30,
+            "column": 12
+        },
+        "score_final": {
+            "type": "int",
+            "line": 42,
             "column": 9
         }
     }
