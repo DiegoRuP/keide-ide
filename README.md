@@ -10,7 +10,7 @@ Sigue estos pasos para instalar y ejecutar Keide IDE en tu máquina:
 
 1. **Clona el repositorio**:
 ```bash
-git clone [https://github.com/diegorup/keide-ide.git](https://github.com/diegorup/keide-ide.git)
+git clone https://github.com/diegorup/keide-ide.git
 cd keide-ide
 ````
 
@@ -160,6 +160,37 @@ Es importante tener en cuenta las características que **no** están implementad
   * Las **llamadas a funciones** no se validan semánticamente (no se comprueba el número o tipo de argumentos).
   * No se valida el uso de la sentencia `return` dentro de las funciones.
 
-<!-- end list -->
+---
 
-```
+### Reglas Semánticas y Tabla de Símbolos
+
+El análisis semántico es la fase del compilador que verifica la coherencia y el significado del código fuente. Mientras que el analizador sintáctico comprueba que la *estructura* sea correcta, el analizador semántico comprueba que el código *tenga sentido*. Esta fase utiliza la **Tabla de Símbolos** como su principal herramienta de trabajo.
+
+#### 1. La Tabla de Símbolos
+
+Es una estructura de datos que almacena toda la información sobre los identificadores (variables y funciones) que se encuentran en el código.
+
+* **Estructura:** Nuestro compilador utiliza una **pila de ámbitos (scope stack)**. Cada ámbito (el global, `main`, una función) es un diccionario que mapea nombres de variables a sus detalles. Se mantiene también un historial (`scope_history`) que no se borra, usado para generar el árbol semántico final y la tabla hash.
+* **Contenido por Símbolo:** Por cada identificador, se almacena:
+    * **Tipo (`type`):** `int`, `float`, `string` o `function`.
+    * **Ámbito (`scope`):** El nombre del ámbito donde fue declarado (`global`, `main`, `nombre_funcion`).
+    * **Estado (`state`):** `declarado`, `modificado`, `utilizado`.
+    * **Posición (`line`, `column`):** La línea y columna donde fue declarado.
+
+#### 2. Reglas Semánticas Verificadas
+
+El analizador semántico recorre el Árbol de Sintaxis Abstracta (AST) y aplica las siguientes reglas:
+
+* **Verificación de Declaraciones:**
+    1.  **Uso de Variables no Declaradas:** Antes de usar una variable, el analizador la busca (`lookup`) en la tabla de símbolos desde el ámbito actual hacia el global. Si no se encuentra, se reporta un error.
+    2.  **Redeclaración de Variables:** No se permite declarar dos variables con el mismo nombre en el mismo ámbito.
+    3.  **Sombreado de Variables (Shadowing):** Es válido declarar una variable en un ámbito interno con el mismo nombre que una en un ámbito externo. La variable local "ocultará" a la externa dentro de su ámbito.
+
+* **Verificación de Tipos (Type Checking):**
+    1.  **Asignaciones (`=`):** Se valida la compatibilidad entre el tipo de la variable y el tipo del valor asignado.
+    2.  **Operaciones Aritméticas (`+`, `-`, `*`, `/`):** Solo se permiten entre tipos numéricos (`int`, `float`).
+    3.  **Concatenación (`+`):** El operador `+` también concatena `string` con `string` o `string` con tipos numéricos.
+    4.  **Operaciones Relacionales (`==`, `!=`, `<`, `>`):** Se validan entre tipos compatibles. La comparación de igualdad (`==`, `!=`) también es válida para `string`.
+
+* **Verificación de Estructuras de Control:**
+    1.  **Condiciones (`if`, `while`, `until`):** La expresión de una condición debe resultar en un tipo evaluable a un valor de verdad (en nuestro lenguaje, `int`, `float` o un resultado `boolean` de una comparación).
