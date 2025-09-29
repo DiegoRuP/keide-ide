@@ -1,0 +1,60 @@
+// Archivo: prueba_correcta.txt
+// Descripción: Este código prueba todas las funcionalidades válidas del compilador.
+// Resultado Esperado: 0 errores.
+
+// --- Declaraciones Globales y Funciones ---
+int global_score = 1000;
+string game_status = "active";
+
+// Función con parámetros y variables locales
+int calculate_bonus(int base_points, int multiplier) {
+    int extra_bonus = 50;
+    int final_points = (base_points + extra_bonus) * multiplier;
+    cout << "Bonus calculado;";
+}
+
+main {
+    // --- Declaración y Asignación de Variables ---
+    int score = 0;
+    float health = 100.0;
+    string player_name = "Keide";
+
+    // --- Prueba de Operaciones Aritméticas ---
+    score = score + 50;         // Suma
+    score = 10 * 2;             // Multiplicación
+    health = health / 2.0;      // División con flotantes
+    score = score + score * 3;  // Operación combinada
+
+    // --- Uso de Estructuras Condicionales (if) ---
+    if (health > 25.0 && game_status == "active") then
+        cout << "El jugador está en buena condición.";
+        score = score + 100;
+    else
+        cout << "El jugador está en peligro.";
+    end
+
+    // --- Uso de Estructuras Repetitivas (while, do-until) ---
+    int counter = 3;
+    while (counter > 0)
+        cout << "Tiempo restante: " + counter;
+        counter = counter - 1;
+    end
+    
+    do
+      cout << "Fin del bucle while.";
+      counter = counter + 1;
+    until (counter == 1);
+
+    // --- Sombreado de Variables (Shadowing) ---
+    // Esta variable 'game_status' es local de 'main' y oculta a la global
+    string game_status = "finished";
+    if (game_status == "finished") then
+        cout << "El juego ha terminado.";
+    end
+    
+    // --- Validación de Ambito ---
+    // Se puede acceder a la variable global desde un ámbito local
+    score = score + global_score;
+    
+    cout << "Puntuación final: " + score;
+}

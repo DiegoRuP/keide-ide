@@ -1,0 +1,54 @@
+// Archivo: prueba_errores.txt
+// Descripción: Este código prueba la detección de errores semánticos del compilador.
+// Resultado Esperado: Múltiples errores en el panel de "Errores Semánticos".
+
+string global_var = "global";
+
+int test_function(int param1) {
+    // 1. Error: Redeclaración de una variable en el mismo ámbito (local a la función).
+    int local_var = 10;
+    string local_var = "diez";
+}
+
+main {
+    // 2. Error: Redeclaración de una variable en el mismo ámbito (main).
+    int score = 100;
+    int score = 200;
+
+    // --- Errores de Declaración y Asignación ---
+    // 3. Error: Asignando un 'string' a una variable 'int'.
+    int error_tipo_1 = "esto no es un numero";
+
+    // 4. Error: Asignando un 'int' a una variable 'string'.
+    string error_tipo_2 = 12345;
+
+    // --- Errores de Operaciones con Tipos ---
+    // 5. Error: Operación de resta inválida entre dos 'string'.
+    string error_operacion_1 = "hola" - "mundo";
+    
+    // 6. Error: Multiplicación inválida para el tipo 'string'.
+    string error_operacion_2 = "texto" * 3;
+
+    // 7. Error: No se pueden comparar un 'string' y un 'int' con el operador '>'.
+    if ("cinco" > 5) then
+        cout << "Esto no debería funcionar.";
+    end
+    
+    // Errores de Variables y Ambito
+ 	// 8. Error: Uso de una variable no declarada ('puntos_extra').
+    score = score + puntos_extra;
+
+    // 9. Error: La variable 'local_var' solo existe en 'test_function', no aquí.
+    int score_final = score + local_var;
+
+    // --- Errores en Estructuras de Control ---
+    // 10. Error: La condición de un 'if' no puede ser un 'string'.
+    if ("condicion invalida") then
+        cout << "El compilador no debería permitir esto.";
+    end
+
+    // 11. Error: La condición de 'while' resulta en un tipo de dato inválido.
+    while (score + "texto")
+        cout << "Bucle con condición errónea.";
+    end
+}

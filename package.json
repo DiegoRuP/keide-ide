@@ -1,6 +1,6 @@
 {
   "name": "keide-ide",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "main": "main/main.js",
   "directories": {
     "test": "test"
