@@ -154,8 +154,6 @@ El lenguaje incluye comandos básicos para interactuar con la consola.
 
 Es importante tener en cuenta las características que **no** están implementadas en la versión actual del compilador:
 
-  * No hay soporte para bucles `for`.
-  * No hay soporte para la estructura `switch`.
   * No se pueden declarar `arreglos (arrays)` ni `estructuras (structs)`.
   * Las **llamadas a funciones** no se validan semánticamente (no se comprueba el número o tipo de argumentos).
   * No se valida el uso de la sentencia `return` dentro de las funciones.
