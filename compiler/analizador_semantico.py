@@ -291,6 +291,46 @@ class SemanticAnalyzer:
 
     def visit_output_statement(self, node):
         self.visit(node.children[0])
+        
+    def visit_switch_statement(self, node):
+        condition_type = self.visit(node.children[0])
+        
+        # Regla: la condición del switch debe ser un entero
+        if condition_type != 'int':
+            self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: La expresión en un 'switch' debe ser de tipo 'int', no '{condition_type}'.")
+        
+        # Visitar los bloques case/default
+        case_labels = set()
+        for i in range(1, len(node.children)):
+            case_node = node.children[i]
+            
+            # Regla: no puede haber dos 'case' con el mismo valor
+            if case_node.type == ASTNodeType.CASE_BLOCK:
+                if case_node.value in case_labels:
+                    self.errors.append(f"Error Semántico en línea {case_node.line}, columna {case_node.column}: Etiqueta 'case' duplicada con valor '{case_node.value}'.")
+                case_labels.add(case_node.value)
+            
+            self.visit(case_node)
+
+    def visit_case_block(self, node):
+        self.visit(node.children[0]) 
+
+    def visit_default_block(self, node):
+        self.visit(node.children[0]) 
+    
+    def visit_for_statement(self, node):
+        self.symbol_table.enter_scope('for_loop')
+        
+        if node.children[0]:
+            self.visit(node.children[0])
+        if node.children[1]:
+            self.check_condition(node.children[1], "for")
+        if node.children[2]:
+            self.visit(node.children[2])
+        if node.children[3]:
+            self.visit(node.children[3])
+            
+        self.symbol_table.exit_scope()
 
         
 def semantic_tree_to_html(node):

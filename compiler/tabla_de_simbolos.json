@@ -1,61 +1,31 @@
 [
     {
-        "__name__": "global",
-        "global_var": {
-            "type": "string",
-            "line": 5,
-            "column": 8
-        },
-        "test_function": {
-            "type": "function(returns int)",
-            "line": 7,
-            "column": 5
-        }
-    },
-    {
-        "__name__": "test_function",
-        "param1": {
-            "type": "int",
-            "line": 7,
-            "column": 23
-        },
-        "local_var": {
-            "type": "int",
-            "line": 9,
-            "column": 9
-        }
+        "__name__": "global"
     },
     {
         "__name__": "main",
-        "score": {
+        "opcion": {
             "type": "int",
-            "line": 15,
+            "line": 4,
             "column": 9
         },
-        "error_tipo_1": {
-            "type": "int",
-            "line": 20,
-            "column": 9
-        },
-        "error_tipo_2": {
+        "resultado": {
             "type": "string",
-            "line": 23,
+            "line": 5,
             "column": 12
         },
-        "error_operacion_1": {
-            "type": "string",
+        "acumulador": {
+            "type": "int",
+            "line": 26,
+            "column": 9
+        }
+    },
+    {
+        "__name__": "for_loop",
+        "i": {
+            "type": "int",
             "line": 27,
-            "column": 12
-        },
-        "error_operacion_2": {
-            "type": "string",
-            "line": 30,
-            "column": 12
-        },
-        "score_final": {
-            "type": "int",
-            "line": 42,
-            "column": 9
+            "column": 14
         }
     }
 ]

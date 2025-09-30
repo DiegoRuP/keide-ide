@@ -25,7 +25,11 @@ class ASTNodeType(Enum):
     BOOLEAN = auto()
     FUNCTION_DECLARATION = auto() 
     PARAMETER_LIST = auto()      
-    PARAMETER = auto()            
+    PARAMETER = auto()     
+    FOR_STATEMENT = auto()
+    SWITCH_STATEMENT = auto()
+    CASE_BLOCK = auto()
+    DEFAULT_BLOCK = auto() 
 
 class ASTNode:
     def __init__(self, node_type, value=None, children=None, line=None, column=None):
@@ -330,6 +334,10 @@ class SyntacticAnalyzer:
                 return self.while_statement()
             elif token.value == "do":
                 return self.do_until_statement()
+            elif token.value == "for":
+                return self.for_statement()
+            elif token.value == "switch":
+                return self.switch_statement()
             elif token.value == "cin":
                 return self.input_statement()
             elif token.value == "cout":
@@ -648,6 +656,114 @@ class SyntacticAnalyzer:
         if not self.consume(TokenType.SYMBOL, ";"):
             self.error("Falta ';' al final de la sentencia cout")
         
+        return node
+    
+    def switch_statement(self):
+        """switch_statement -> switch ( expression ) case_block* default_block? end"""
+        switch_token = self.consume(TokenType.KEYWORD, "switch")
+        node = ASTNode(ASTNodeType.SWITCH_STATEMENT, "switch", [], switch_token.line, switch_token.column)
+
+        self.consume(TokenType.SYMBOL, "(")
+        condition = self.expression()
+        node.children.append(condition)
+        self.consume(TokenType.SYMBOL, ")")
+
+        while self.current_token() and not self.match(TokenType.KEYWORD, "end"):
+            if self.match(TokenType.KEYWORD, "case"):
+                case_node = self.parse_case_block()
+                node.children.append(case_node)
+            elif self.match(TokenType.KEYWORD, "default"):
+                default_node = self.parse_default_block()
+                node.children.append(default_node)
+                break 
+            else:
+                self.error("Se esperaba 'case', 'default' o 'end'")
+                break
+
+        if not self.consume(TokenType.KEYWORD, "end"):
+            self.error("Falta 'end' para cerrar el bloque switch")
+
+        return node
+    
+    def parse_case_block(self):
+        """case_block -> case CONSTANT : statement* break ;"""
+        case_token = self.consume(TokenType.KEYWORD, "case")
+        case_value = self.primary_expression() 
+        node = ASTNode(ASTNodeType.CASE_BLOCK, case_value.value, [], case_token.line, case_token.column)
+        
+        self.consume(TokenType.SYMBOL, ":")
+        
+        body = ASTNode(ASTNodeType.BLOCK, "case_body")
+        while self.current_token() and not self.match(TokenType.KEYWORD, "break"):
+            stmt = self.statement()
+            if stmt: body.children.append(stmt)
+        node.children.append(body)
+
+        if not self.consume(TokenType.KEYWORD, "break"):
+            self.error("Cada 'case' debe terminar con 'break;'")
+        if not self.consume(TokenType.SYMBOL, ";"):
+            self.error("Falta ';' después de 'break'")
+            
+        return node
+
+    def parse_default_block(self):
+        """default_block -> default : statement* break ;"""
+        default_token = self.consume(TokenType.KEYWORD, "default")
+        node = ASTNode(ASTNodeType.DEFAULT_BLOCK, "default", [], default_token.line, default_token.column)
+        
+        self.consume(TokenType.SYMBOL, ":")
+
+        body = ASTNode(ASTNodeType.BLOCK, "default_body")
+        while self.current_token() and not self.match(TokenType.KEYWORD, "break"):
+            stmt = self.statement()
+            if stmt: body.children.append(stmt)
+        node.children.append(body)
+        
+        if not self.consume(TokenType.KEYWORD, "break"):
+            self.error("El bloque 'default' debe terminar con 'break;'")
+        if not self.consume(TokenType.SYMBOL, ";"):
+            self.error("Falta ';' después de 'break'")
+
+        return node
+
+    def for_statement(self):
+        """for_statement -> for ( init ; condition ; increment ) statement* end"""
+        for_token = self.consume(TokenType.KEYWORD, "for")
+        node = ASTNode(ASTNodeType.FOR_STATEMENT, "for", [], for_token.line, for_token.column)
+
+        self.consume(TokenType.SYMBOL, "(")
+
+        if self.current_token().value in ["int", "float", "string"]:
+            init = self.declaration()
+        else:
+            init = self.assignment()
+        node.children.append(init)
+
+        condition = self.expression()
+        node.children.append(condition)
+        self.consume(TokenType.SYMBOL, ";")
+
+        increment_id = self.consume(TokenType.IDENTIFIER)
+        self.consume(TokenType.ASSIGNMENT, "=")
+        increment_expr = self.expression()
+        
+        id_node = ASTNode(ASTNodeType.IDENTIFIER, increment_id.value, [], increment_id.line, increment_id.column)
+        increment_node = ASTNode(ASTNodeType.ASSIGNMENT, "=", [id_node, increment_expr], increment_id.line, increment_id.column)
+        node.children.append(increment_node)
+
+        self.consume(TokenType.SYMBOL, ")")
+        
+        body = ASTNode(ASTNodeType.BLOCK, "for_body")
+        
+        while self.current_token() and not self.match(TokenType.KEYWORD, "end"):
+            stmt = self.statement()
+            if stmt:
+                body.children.append(stmt)
+        node.children.append(body)
+
+        if not self.consume(TokenType.KEYWORD, "end"):
+            self.error("Falta 'end' para cerrar el bloque for")
+            
         return node
     
     def expression(self):
