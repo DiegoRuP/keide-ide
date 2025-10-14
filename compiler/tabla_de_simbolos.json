@@ -1,83 +1,71 @@
 [
     {
         "__name__": "global",
-        "global_score": {
-            "type": "int",
-            "line": 6,
-            "column": 5,
-            "value": "1000"
-        },
-        "game_status": {
+        "global_var": {
             "type": "string",
-            "line": 7,
+            "line": 5,
             "column": 8,
-            "value": "\"active\""
+            "value": "\"global\""
         },
-        "calculate_bonus": {
+        "test_function": {
             "type": "function(returns int)",
-            "line": 10,
+            "line": 7,
             "column": 5,
             "value": null
         }
     },
     {
-        "__name__": "calculate_bonus",
-        "base_points": {
+        "__name__": "test_function",
+        "param1": {
             "type": "int",
-            "line": 10,
-            "column": 25,
+            "line": 7,
+            "column": 23,
             "value": null
         },
-        "multiplier": {
+        "local_var": {
             "type": "int",
-            "line": 10,
-            "column": 42,
-            "value": null
-        },
-        "extra_bonus": {
-            "type": "int",
-            "line": 11,
+            "line": 9,
             "column": 9,
-            "value": "50"
-        },
-        "final_points": {
-            "type": "int",
-            "line": 12,
-            "column": 9,
-            "value": null
+            "value": "10"
         }
     },
     {
         "__name__": "main",
         "score": {
             "type": "int",
-            "line": 18,
+            "line": 15,
             "column": 9,
-            "value": "0"
+            "value": "100"
         },
-        "health": {
-            "type": "float",
-            "line": 19,
-            "column": 11,
-            "value": "100.0"
-        },
-        "player_name": {
-            "type": "string",
-            "line": 20,
-            "column": 12,
-            "value": "\"Keide\""
-        },
-        "counter": {
+        "error_tipo_1": {
             "type": "int",
-            "line": 37,
+            "line": 20,
             "column": 9,
-            "value": "3"
+            "value": "\"esto no es un numero\""
         },
-        "game_status": {
+        "error_tipo_2": {
             "type": "string",
-            "line": 50,
+            "line": 23,
             "column": 12,
-            "value": "\"finished\""
+            "value": "12345"
+        },
+        "error_operacion_1": {
+            "type": "string",
+            "line": 27,
+            "column": 12,
+            "value": null
+        },
+        "error_operacion_2": {
+            "type": "string",
+            "line": 30,
+            "column": 12,
+            "value": null
+        },
+        "score_final": {
+            "type": "int",
+            "line": 42,
+            "column": 9,
+            "value": null
         }
     }
 ]

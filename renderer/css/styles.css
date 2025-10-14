@@ -309,7 +309,7 @@ body.dark-mode .resize-handle-horizontal:hover {
 .resize-container-vertical {
     position: relative;
     overflow: hidden;
-    height: 250px; /* Altura inicial */
+    height: 320px; /* Altura inicial */
     flex-shrink: 0;
 }
 
@@ -910,4 +910,22 @@ body.dark-mode .collision-row {
 body.dark-mode .collision-row .ht-cell-index {
     background-color: rgba(255, 171, 64, 0.2);
     border-left-color: #ffab40;
+}
+
+.output-panel {
+  max-height: 275px;       /* Altura máxima del área visible */
+  overflow-y: auto;         /* Activa el scroll vertical */
+  white-space: pre-wrap;    /* Ajusta líneas largas si quieres */
+  background-color: #f8f9fa; /* Un gris claro tipo Bootstrap */
+  font-family: monospace;
+  scrollbar-width: thin;    /* Scroll más delgado en Firefox */
+}
+
+/* Scrollbar moderno para Chrome, Edge, Safari */
+.output-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.output-panel::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
 }
