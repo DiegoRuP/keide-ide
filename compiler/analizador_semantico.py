@@ -24,7 +24,7 @@ class SymbolTable:
             self.scopes.pop()
 
 
-    def define(self, name, symbol_type, line, column):
+    def define(self, name, symbol_type, line, column, initial_value=None):
         """Define un nuevo símbolo en el ámbito ACTUAL."""
         current_scope_for_history = self.scope_history[-1]
         current_scope_for_lookup = self.scopes[-1]
@@ -33,7 +33,7 @@ class SymbolTable:
             return (f"Error Semántico en línea {line}, columna {column}: "
                     f"La variable '{name}' ya ha sido declarada en el ámbito '{current_scope_for_lookup['__name__']}'.")
         
-        symbol_info = {'type': symbol_type, 'line': line, 'column': column}
+        symbol_info = {'type': symbol_type, 'line': line, 'column': column, 'value': initial_value}
         
         current_scope_for_lookup[name] = symbol_info
         current_scope_for_history[name] = symbol_info
@@ -143,18 +143,27 @@ class SemanticAnalyzer:
         node.scope = current_scope
         
         for child in node.children:
+            
+            initial_value = None
+            
             var_node = child.children[0] if child.type == ASTNodeType.ASSIGNMENT else child
             var_name = var_node.value
-            error = self.symbol_table.define(var_name, var_type, var_node.line, var_node.column)
+            
+            if child.type == ASTNodeType.ASSIGNMENT:
+                expr_node = child.children[1]
+                # Verificamos si el valor es una constante simple (número o string)
+                if expr_node.type in [ASTNodeType.NUMBER, ASTNodeType.STRING]:
+                    initial_value = expr_node.value
+                
+            error = self.symbol_table.define(var_name, var_type, var_node.line, var_node.column, initial_value=initial_value)
+                
             if error:
                 self.errors.append(error)
             else:
                 var_node.scope = current_scope
                 var_node.data_type = var_type
                 var_node.state = 'declarado'
-                # var_node.memory_address = f"@{self.memory_counter}"
-                # self.memory_counter += 4
-            
+                
             if child.type == ASTNodeType.ASSIGNMENT:
                 child.scope = current_scope
                 self.visit_assignment(child)
@@ -351,9 +360,7 @@ def semantic_tree_to_html(node):
         sem_info.append(f'Ámbito: {node.scope}')
     if node.state:
         sem_info.append(f'Estado: {node.state}')
-    # if node.memory_address:
-    #     sem_info.append(f'Mem: {node.memory_address}')
-
+        
     if sem_info:
         html += f' <span class="sem-info">({", ".join(sem_info)})</span>'
 

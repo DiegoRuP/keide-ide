@@ -42,7 +42,7 @@ def populate_hash_table_from_symbol_table(symbol_table_scopes, hash_table_size=1
                 'scope': scope.get('__name__'),
                 'line': details.get('line'),
                 'column': details.get('column'),
-                # 'memory_address': details.get('memory_address') 
+                'value': details.get('value'), 
             }
             hash_table.insert(symbol_data)
             
@@ -72,10 +72,16 @@ def hash_table_to_html(hash_table):
                 
                 # Formatear los datos del símbolo
                 symbol_name = symbol.get('name', 'N/A')
+                
+                symbol_value = symbol.get('value')
+                
+                if symbol_value is None:
+                    symbol_value = 'N/A'   
+
                 symbol_details = (
                     f"<b>Tipo:</b> {symbol.get('type', '?')} <br>"
                     f"<b>Ámbito:</b> {symbol.get('scope', '?')} <br>"
-                    # f"<b>Mem:</b> {symbol.get('memory_address', '?')} <br>"
+                    f"<b>Valor Inicial:</b> {symbol_value} <br>" 
                     f"<b>Pos:</b> L{symbol.get('line', '?')}, C{symbol.get('column', '?')}"
                 )
                 

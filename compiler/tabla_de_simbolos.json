@@ -1,31 +1,83 @@
 [
     {
-        "__name__": "global"
-    },
-    {
-        "__name__": "main",
-        "opcion": {
+        "__name__": "global",
+        "global_score": {
             "type": "int",
-            "line": 4,
-            "column": 9
+            "line": 6,
+            "column": 5,
+            "value": "1000"
         },
-        "resultado": {
+        "game_status": {
             "type": "string",
-            "line": 5,
-            "column": 12
+            "line": 7,
+            "column": 8,
+            "value": "\"active\""
         },
-        "acumulador": {
-            "type": "int",
-            "line": 26,
-            "column": 9
+        "calculate_bonus": {
+            "type": "function(returns int)",
+            "line": 10,
+            "column": 5,
+            "value": null
         }
     },
     {
-        "__name__": "for_loop",
-        "i": {
+        "__name__": "calculate_bonus",
+        "base_points": {
             "type": "int",
-            "line": 27,
-            "column": 14
+            "line": 10,
+            "column": 25,
+            "value": null
+        },
+        "multiplier": {
+            "type": "int",
+            "line": 10,
+            "column": 42,
+            "value": null
+        },
+        "extra_bonus": {
+            "type": "int",
+            "line": 11,
+            "column": 9,
+            "value": "50"
+        },
+        "final_points": {
+            "type": "int",
+            "line": 12,
+            "column": 9,
+            "value": null
+        }
+    },
+    {
+        "__name__": "main",
+        "score": {
+            "type": "int",
+            "line": 18,
+            "column": 9,
+            "value": "0"
+        },
+        "health": {
+            "type": "float",
+            "line": 19,
+            "column": 11,
+            "value": "100.0"
+        },
+        "player_name": {
+            "type": "string",
+            "line": 20,
+            "column": 12,
+            "value": "\"Keide\""
+        },
+        "counter": {
+            "type": "int",
+            "line": 37,
+            "column": 9,
+            "value": "3"
+        },
+        "game_status": {
+            "type": "string",
+            "line": 50,
+            "column": 12,
+            "value": "\"finished\""
         }
     }
 ]
