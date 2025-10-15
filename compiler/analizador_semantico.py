@@ -13,10 +13,17 @@ class SymbolTable:
         # Historial de ámbitos
         self.scope_history = [{'__name__': 'global'}]
 
-    def enter_scope(self, name):
-        """Entra en un nuevo ámbito (ej. al entrar a una función)."""
-        self.scopes.append({'__name__': name})
-        self.scope_history.append({'__name__': name})
+    def enter_scope(self, base_name):
+        parent_scope_name = self.scopes[-1]['__name__']
+        
+        if parent_scope_name == 'global':
+            new_scope_name = base_name
+        else:
+            new_scope_name = f"{parent_scope_name},{base_name}"
+        
+        new_scope = {'__name__': new_scope_name}
+        self.scopes.append(new_scope)
+        self.scope_history.append(new_scope)
 
     def exit_scope(self):
         """Sale del ámbito actual."""
@@ -280,16 +287,28 @@ class SemanticAnalyzer:
 
     def visit_if_statement(self, node):
         self.check_condition(node.children[0], "if")
-        self.visit(node.children[1]) # Bloque then
+    
+        self.symbol_table.enter_scope("if_block") 
+        self.visit(node.children[1]) 
+        self.symbol_table.exit_scope()
+
         if len(node.children) > 2:
-            self.visit(node.children[2]) # Bloque else
+            self.symbol_table.enter_scope("else_block")
+            self.visit(node.children[2])
+            self.symbol_table.exit_scope()
 
     def visit_while_statement(self, node):
         self.check_condition(node.children[0], "while")
+        
+        self.symbol_table.enter_scope("while_block")
         self.visit(node.children[1])
+        self.symbol_table.exit_scope()
 
     def visit_do_until_statement(self, node):
+        self.symbol_table.enter_scope("do_until_block")
         self.visit(node.children[0])
+        self.symbol_table.exit_scope()
+        
         self.check_condition(node.children[1], "do-until")
 
     def visit_input_statement(self, node):
@@ -303,23 +322,24 @@ class SemanticAnalyzer:
         
     def visit_switch_statement(self, node):
         condition_type = self.visit(node.children[0])
-        
-        # Regla: la condición del switch debe ser un entero
+    
         if condition_type != 'int':
             self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: La expresión en un 'switch' debe ser de tipo 'int', no '{condition_type}'.")
+            
+        self.symbol_table.enter_scope('switch_block')
         
-        # Visitar los bloques case/default
         case_labels = set()
         for i in range(1, len(node.children)):
             case_node = node.children[i]
             
-            # Regla: no puede haber dos 'case' con el mismo valor
             if case_node.type == ASTNodeType.CASE_BLOCK:
                 if case_node.value in case_labels:
                     self.errors.append(f"Error Semántico en línea {case_node.line}, columna {case_node.column}: Etiqueta 'case' duplicada con valor '{case_node.value}'.")
                 case_labels.add(case_node.value)
             
             self.visit(case_node)
+        
+        self.symbol_table.exit_scope()
 
     def visit_case_block(self, node):
         self.visit(node.children[0]) 
@@ -328,8 +348,8 @@ class SemanticAnalyzer:
         self.visit(node.children[0]) 
     
     def visit_for_statement(self, node):
-        self.symbol_table.enter_scope('for_loop')
-        
+        self.symbol_table.enter_scope('for_block')
+
         if node.children[0]:
             self.visit(node.children[0])
         if node.children[1]:

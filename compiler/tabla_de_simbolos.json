@@ -1,71 +1,26 @@
 [
     {
-        "__name__": "global",
-        "global_var": {
-            "type": "string",
-            "line": 5,
-            "column": 8,
-            "value": "\"global\""
-        },
-        "test_function": {
-            "type": "function(returns int)",
-            "line": 7,
-            "column": 5,
-            "value": null
-        }
+        "__name__": "global"
     },
     {
-        "__name__": "test_function",
-        "param1": {
+        "__name__": "main"
+    },
+    {
+        "__name__": "main,if_block",
+        "x": {
             "type": "int",
-            "line": 7,
-            "column": 23,
-            "value": null
-        },
-        "local_var": {
-            "type": "int",
-            "line": 9,
-            "column": 9,
+            "line": 3,
+            "column": 13,
             "value": "10"
         }
     },
     {
-        "__name__": "main",
-        "score": {
+        "__name__": "main,if_block,if_block",
+        "y": {
             "type": "int",
-            "line": 15,
-            "column": 9,
-            "value": "100"
-        },
-        "error_tipo_1": {
-            "type": "int",
-            "line": 20,
-            "column": 9,
-            "value": "\"esto no es un numero\""
-        },
-        "error_tipo_2": {
-            "type": "string",
-            "line": 23,
-            "column": 12,
-            "value": "12345"
-        },
-        "error_operacion_1": {
-            "type": "string",
-            "line": 27,
-            "column": 12,
-            "value": null
-        },
-        "error_operacion_2": {
-            "type": "string",
-            "line": 30,
-            "column": 12,
-            "value": null
-        },
-        "score_final": {
-            "type": "int",
-            "line": 42,
-            "column": 9,
-            "value": null
+            "line": 5,
+            "column": 17,
+            "value": "20"
         }
     }
 ]
