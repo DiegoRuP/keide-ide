@@ -34,6 +34,8 @@ compiler/ast_visual.png
 compiler/ast.txt
 compiler/errores_semanticos.txt
 compiler/errores_sintacticos.txt
+compiler/errores_lexicos.txt
+compiler/tabla_de_simbolos.json
 compiler/salida.html
 compiler/tokens.txt
 compiler/errores.txt
