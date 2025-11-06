@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.activeMarks = [];
 
-    function colorearEditorConTokens(tokens) {
+    window.colorearEditorConTokens = function(tokens) {
     // Borra highlights anteriores
     if(window.activeMarks){
         window.activeMarks.forEach(mark => mark.clear());
