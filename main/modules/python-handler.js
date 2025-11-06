@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-function compilar(codigo, callback) {
+function compilar(codigo, runMode, callback) {
     const compiladorPath = path.join(__dirname, '..', '..', 'compiler', 'compilador.py');
     const pythonCommand = process.platform === 'win32' ? 'python' : 'python3';
     const tempFile = path.join(os.tmpdir(), `keide_temp_${Date.now()}.txt`);
@@ -17,7 +17,12 @@ function compilar(codigo, callback) {
             });
         }
 
-        const comando = `${pythonCommand} "${compiladorPath}" "${tempFile}"`;
+        let comando = `${pythonCommand} "${compiladorPath}" "${tempFile}"`;
+
+        if (runMode) {
+            comando += " --run";
+        }
+
         console.log('Ejecutando:', comando);
 
         // Configurar timeout (10 segundos)

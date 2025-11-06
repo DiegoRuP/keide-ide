@@ -39,6 +39,11 @@ compiler/tabla_de_simbolos.json
 compiler/salida.html
 compiler/tokens.txt
 compiler/errores.txt
+compiler/programa.ll
+compiler/programa_opt.ll
+compiler/programa.s
+compiler/programa
+compiler/run.command
 
 # Archivos de sistema
 .DS_Store

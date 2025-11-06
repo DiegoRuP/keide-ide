@@ -13,7 +13,7 @@ try {
     console.error('Error al cargar el módulo Python Handler:', error);
     // Implementación simulada en caso de error
     pythonHandler = {
-        compilar: (code, callback) => {
+        compilar: (code, runMode, callback) => {
             callback({
                 error: 'No se pudo cargar el módulo Python Handler: ' + error.message
             });
@@ -93,11 +93,11 @@ ipcMain.handle('dialog:saveFileAs', async (event, content) => {
 });
 
 // Manejar la compilación de Python 
-ipcMain.handle('python:compile', async (event, code) => {
+ipcMain.handle('python:compile', async (event, code, runMode) => {
     // Esta función convierte la API basada en callbacks a una Promise
     return new Promise((resolve, reject) => {
         try {
-            pythonHandler.compilar(code, (result) => {
+            pythonHandler.compilar(code, runMode, (result) => {
                 if (result.error) {
                     // Devolvemos el error como un objeto estructurado, no como una excepción
                     resolve({ 

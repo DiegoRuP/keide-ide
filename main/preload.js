@@ -15,5 +15,5 @@ contextBridge.exposeInMainWorld('nodeAPI', {
 });
 
 contextBridge.exposeInMainWorld('compilerAPI', {
-    compile: (code) => ipcRenderer.invoke('python:compile', code)
+    compile: (code, runMode) => ipcRenderer.invoke('python:compile', code, runMode),
 });

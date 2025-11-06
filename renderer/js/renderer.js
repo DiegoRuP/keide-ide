@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(window.highlightTimeout);
         window.highlightTimeout = setTimeout(async () => {
             const code = editor.getValue();
-            const result = await window.compilerAPI.compile(code);
+            const result = await window.compilerAPI.compile(code, false);
             if(result.tokens) colorearEditorConTokens(result.tokens);
         }, 500);
     });

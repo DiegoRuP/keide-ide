@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const checkDependencies = setInterval(() => {
-        if (window.editor && window.compilerAPI) {
+        if (window.editor && window.compilerAPI && window.colorearEditorConTokens) {
             clearInterval(checkDependencies);
             setupCompiler();
         } else {
             console.log('Esperando dependencias...', {
-                editor: !!window.editor, 
+                editor: !!window.editor,
                 compilerAPI: !!window.compilerAPI
             });
         }
@@ -14,14 +14,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setupCompiler() {
     const compileBtn = document.getElementById('compilar-btn');
+    const runBtn = document.getElementById('btn-run'); 
+    
     if (!compileBtn) {
         console.error('Botón de compilación no encontrado');
-        return;
+    }
+    if (!runBtn) {
+        console.error('Botón de ejecución (btn-run) no encontrado');
     }
 
     let isCompiling = false;
 
-    compileBtn.addEventListener('click', async () => {
+    // --- FUNCIÓN HELPER PARA COMPILAR Y MOSTRAR RESULTADOS ---
+    // La usaremos para ambos botones
+    const handleCompilation = async (runMode = false) => {
         if (isCompiling) {
             console.warn('Compilación en curso, ignorando click');
             return;
@@ -31,15 +37,16 @@ function setupCompiler() {
         const code = window.editor.getValue();
         const loadingElement = document.getElementById('loading-indicator');
 
+        // IDs de todos los paneles de salida
         const lexicoOutput = document.getElementById('output-lexicos');
         const sintacticoOutput = document.getElementById('output-sintacticos');
         const semanticoOutput = document.getElementById('output-semanticos');
         const resultadosOutput = document.getElementById('output-resultados');
-        const panelTokens = document.getElementById('lexico'); // El panel de la lista de tokens
-        const panelAST = document.getElementById('sintactico'); // El panel del AST
-        const panelSemantico = document.getElementById('semantico'); // El panel del árbol semántico
-        const panelHashTable = document.getElementById('hashtable'); // El panel de la tabla hash
-        
+        const panelTokens = document.getElementById('lexico');
+        const panelAST = document.getElementById('sintactico');
+        const panelSemantico = document.getElementById('semantico');
+        const panelHashTable = document.getElementById('hashtable');
+
         if (!code.trim()) {
             lexicoOutput.textContent = "Error: El editor está vacío";
             isCompiling = false;
@@ -52,103 +59,101 @@ function setupCompiler() {
         sintacticoOutput.innerHTML = "Analizando sintaxis...";
         semanticoOutput.innerHTML = "Analizando semántica...";
         resultadosOutput.innerHTML = "Procesando...";
-        
+        panelTokens.innerHTML = "Compilando...";
+        panelAST.innerHTML = "Compilando...";
+        panelSemantico.innerHTML = "Compilando...";
+        panelHashTable.innerHTML = "Compilando...";
+
         try {
-          const result = await window.compilerAPI.compile(code);
-          console.log("Resultado compilación:", result);
+            // Pasamos el 'runMode' que recibimos (true o false)
+            const result = await window.compilerAPI.compile(code, runMode);
+            console.log("Resultado compilación (runMode=" + runMode + "):", result);
 
-          if (window.colorearEditorConTokens) {
-              window.colorearEditorConTokens(result.tokens);
-          }
+            // Colorear el editor
+            if (window.colorearEditorConTokens) {
+                window.colorearEditorConTokens(result.tokens);
+            }
 
-          if (result.error) {
-              throw new Error(result.error);
-          }
+            if (result.error) {
+                throw new Error(result.error);
+            }
 
-          if (result.tokens) {
-              const tokensParaPanel = result.tokens.filter(
-                  (token) => !["WHITESPACE", "COMMENT", "ERROR", "UNCLOSED_COMMENT", "UNCLOSED_STRING"].includes(token.type)
-              );
-              panelTokens.innerHTML = tokensParaPanel.map(
-                  (token) => `
-                      <div class="token">
-                          <span class="token-type">${token.type}</span>
-                          <span class="token-value">${token.value}</span>
-                          <span class="token-position">Línea ${token.line}, Col ${token.column}</span>
-                      </div>
-                  `
-              ).join("");
-          }
-          
-          // Mostrar AST en el panel sintáctico
-          if (result.ast_html) {
-              panelAST.innerHTML = `<div class="ast-container">${result.ast_html}</div>`;
+            // --- Popular Paneles (Tu lógica original, que está perfecta) ---
 
-              document.querySelectorAll(".ast-label").forEach((label) => {
-                  label.addEventListener("click", function (e) {
-                      e.stopPropagation();
-                      const parent = label.parentElement;
-                      if (parent.classList.contains("ast-node")) {
-                          parent.classList.toggle("collapsed");
-                      }
-                  });
-              });
-          } else if (result.errores_lexicos?.length > 0) {
-              panelAST.innerHTML = `<div class="info-message">No se generó el AST por errores en el análisis léxico.</div>`;
-          } else {
-              panelAST.innerHTML = `<div class="info-message">No se generó el árbol sintáctico.</div>`;
-          }
+            // Panel de Tokens (Léxico)
+            if (result.tokens) {
+                const tokensParaPanel = result.tokens.filter(
+                    (token) => !["WHITESPACE", "COMMENT", "ERROR", "UNCLOSED_COMMENT", "UNCLOSED_STRING"].includes(token.type)
+                );
+                panelTokens.innerHTML = tokensParaPanel.map(
+                    (token) => `
+                        <div class="token">
+                            <span class="token-type">${token.type}</span>
+                            <span class="token-value">${token.value}</span>
+                            <span class="token-position">Línea ${token.line}, Col ${token.column}</span>
+                        </div>
+                    `
+                ).join("");
+            }
 
-          // Mostrar árbol semántico en el panel semántico
-          if (result.semantic_tree_html) {
+            // Panel de AST (Sintáctico)
+            if (result.ast_html) {
+                panelAST.innerHTML = `<div class="ast-container">${result.ast_html}</div>`;
+                activarColapsoAST(panelAST);
+            } else if (result.errores_lexicos?.length > 0) {
+                panelAST.innerHTML = `<div class="info-message">No se generó el AST por errores en el análisis léxico.</div>`;
+            } else {
+                panelAST.innerHTML = `<div class="info-message">No se generó el árbol sintáctico.</div>`;
+            }
+
+            // Panel de Árbol Semántico
+            if (result.semantic_tree_html) {
                 panelSemantico.innerHTML = `<div class="ast-container">${result.semantic_tree_html}</div>`;
-                panelSemantico.querySelectorAll(".ast-label").forEach((label) => {
-                    label.addEventListener("click", function (e) {
-                        e.stopPropagation();
-                        const parent = label.parentElement;
-                        if (parent.classList.contains("ast-node")) {
-                            parent.classList.toggle("collapsed");
-                        }
-                    });
-                });
+                activarColapsoAST(panelSemantico);
             } else if (result.errores_lexicos?.length || result.errores_sintacticos?.length) {
                 panelSemantico.innerHTML = `<div class="info-message">No se generó el árbol semántico por errores previos.</div>`;
             } else {
                 panelSemantico.innerHTML = `<div class="info-message">Presiona "Compilar" para generar el árbol semántico.</div>`;
             }
 
-            // Mostrar tabla hash en el panel correspondiente
+            // Panel de Tabla Hash
             if (result.hash_table_html) {
                 panelHashTable.innerHTML = result.hash_table_html;
             } else {
                 panelHashTable.innerHTML = `<div class="info-message">No se generó la tabla hash.</div>`;
             }
-        
-        // Mostrar errores léxicos
-          lexicoOutput.innerHTML = result.errores_lexicos?.length
-              ? result.errores_lexicos.map(e => `<div class="error-item">${e}</div>`).join('')
-              : '<div class="success-message">✓ No se encontraron errores léxicos</div>';
 
-          // Mostrar errores sintácticos
-          sintacticoOutput.innerHTML = result.errores_sintacticos?.length
-              ? result.errores_sintacticos.map(e => `<div class="error-item">${e}</div>`).join('')
-              : '<div class="success-message">✓ No se encontraron errores sintácticos</div>';
+            // --- Popular Paneles de Error (Tu lógica original) ---
 
-          // Mostrar errores semánticos
-          const semanticoErrorsExist = result.errores_lexicos?.length || result.errores_sintacticos?.length;
-          semanticoOutput.innerHTML = result.errores_semanticos?.length
-              ? result.errores_semanticos.map(e => `<div class="error-item">${e}</div>`).join('')
-              : (semanticoErrorsExist 
-                  ? '<div class="info-message">El análisis no se ejecutó debido a errores previos.</div>'
-                  : '<div class="success-message">✓ No se encontraron errores semánticos</div>');
-          
-          // Mostrar resumen en Resultados
-          const totalErrores = (result.errores_lexicos?.length || 0) + (result.errores_sintacticos?.length || 0) + (result.errores_semanticos?.length || 0);
-          if (totalErrores > 0) {
-            resultadosOutput.innerHTML = `<div class="warning-message">Compilación completada con ${totalErrores} error(es).</div>`;
-          } else {
-            resultadosOutput.innerHTML = '<div class="success-message">¡Compilación exitosa! Análisis completados sin errores.</div>';
-          }
+            // Errores Léxicos
+            lexicoOutput.innerHTML = result.errores_lexicos?.length
+                ? result.errores_lexicos.map(e => `<div class="error-item">${e}</div>`).join('')
+                : '<div class="success-message">✓ No se encontraron errores léxicos</div>';
+
+            // Errores Sintácticos
+            sintacticoOutput.innerHTML = result.errores_sintacticos?.length
+                ? result.errores_sintacticos.map(e => `<div class="error-item">${e}</div>`).join('')
+                : '<div class="success-message">✓ No se encontraron errores sintácticos</div>';
+
+            // Errores Semánticos
+            const semanticoErrorsExist = result.errores_lexicos?.length || result.errores_sintacticos?.length;
+            semanticoOutput.innerHTML = result.errores_semanticos?.length
+                ? result.errores_semanticos.map(e => `<div class="error-item">${e}</div>`).join('')
+                : (semanticoErrorsExist
+                    ? '<div class="info-message">El análisis no se ejecutó debido a errores previos.</div>'
+                    : '<div class="success-message">✓ No se encontraron errores semánticos</div>');
+
+            // Panel de Resultados
+            const totalErrores = (result.errores_lexicos?.length || 0) + (result.errores_sintacticos?.length || 0) + (result.errores_semanticos?.length || 0);
+            if (totalErrores > 0) {
+                resultadosOutput.innerHTML = `<div class="warning-message">Compilación completada con ${totalErrores} error(es).</div>`;
+            } else {
+                let successMsg = '¡Compilación exitosa! Análisis completados sin errores.';
+                if (runMode) {
+                    successMsg += ' <br><strong>Ejecución iniciada en la terminal.</strong>';
+                }
+                resultadosOutput.innerHTML = `<div class="success-message">${successMsg}</div>`;
+            }
 
         } catch (error) {
             console.error('Error en compilación:', error);
@@ -162,33 +167,30 @@ function setupCompiler() {
             isCompiling = false;
             console.log('Compilación finalizada');
         }
-    });
+    };
+    
+    // --- ASIGNAR EVENTOS A LOS BOTONES ---
+
+    // 1. Botón "Compilar" (ID: compilar-btn) -> Solo Analiza
+    if (compileBtn) {
+        compileBtn.addEventListener('click', () => handleCompilation(false));
+    }
+
+    // 2. Botón "Ejecutar" (ID: btn-run) -> Analiza y Ejecuta
+    if (runBtn) {
+        runBtn.addEventListener('click', () => handleCompilation(true));
+    }
 }
 
-// Función auxiliar para formatear el AST si no viene el HTML
-function formatASTNode(node, indent = 0) {
-    if (!node) return '';
-    
-    let html = '<div class="ast-node" style="margin-left: ' + (indent * 20) + 'px;">';
-    html += `<span class="node-type">${node.type}</span>`;
-    
-    if (node.value) {
-        html += ` <span class="node-value">[${node.value}]</span>`;
-    }
-    
-    if (node.line) {
-        html += ` <span class="node-position">(línea ${node.line})</span>`;
-    }
-    
-    html += '</div>';
-    
-    if (node.children && node.children.length > 0) {
-        for (const child of node.children) {
-            if (child) {
-                html += formatASTNode(child, indent + 1);
+// Función auxiliar para hacer colapsables los nodos del AST/Árbol Semántico
+function activarColapsoAST(container) {
+    container.querySelectorAll(".ast-label").forEach((label) => {
+        label.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const parent = label.parentElement;
+            if (parent.classList.contains("ast-node")) {
+                parent.classList.toggle("collapsed");
             }
-        }
-    }
-    
-    return html;
+        });
+    });
 }
