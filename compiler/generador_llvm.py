@@ -22,6 +22,8 @@ class CodeGenerator:
         self.builder = None
         self.local_symbol_table = {}
         self.current_function = None 
+        # --- AÑADIDO: Referencia al builder del bloque 'entry' ---
+        self.entry_builder = None
         
         self.function_symbol_table = {}
         
@@ -34,7 +36,7 @@ class CodeGenerator:
         scanf_type = ir.FunctionType(ir.IntType(32), [ir.IntType(8).as_pointer()], var_arg=True)
         self.scanf = ir.Function(self.module, scanf_type, name="scanf")
         
-        # --- Variables Globales (para las cadenas de formato) ---
+        # --- Variables Globales (cadenas de formato) ---
         fmt_int_val = ir.Constant(ir.ArrayType(ir.IntType(8), 4), bytearray("%d\n\00".encode("utf8")))
         self.format_int = ir.GlobalVariable(self.module, fmt_int_val.type, name="fmt_int")
         self.format_int.initializer = fmt_int_val
@@ -179,27 +181,49 @@ class CodeGenerator:
             if child.type == ASTNodeType.MAIN:
                 self.visit(child)
 
+    # ---
+    # --- CORRECCIÓN ARQUITECTURA: visit_main ---
+    # ---
     def visit_main(self, node):
         """Define la función 'main' en el código LLVM."""
         main_type = ir.FunctionType(ir.IntType(32), [])
         main_func = ir.Function(self.module, main_type, name='main')
         
+        # 1. Crear bloque 'entry' (SOLO para 'alloca')
         entry_block = main_func.append_basic_block(name='entry')
-        
         self.current_function = main_func
-        self.builder = ir.IRBuilder(entry_block)
+        
+        # 2. Crear builder para 'entry' (apunta al final de 'entry')
+        self.entry_builder = ir.IRBuilder(entry_block)
+        
+        # 3. Crear bloque 'body' (para todo el código)
+        body_block = main_func.append_basic_block(name='body')
+        self.builder = ir.IRBuilder(body_block) # self.builder apunta a 'body'
         self.local_symbol_table = {}
 
+        # 4. Visitar sentencias
+        #    (visit_declaration usará 'entry_builder' para alloca)
+        #    (otros visit_... usarán 'self.builder' para el código)
         for statement in node.children:
             self.visit(statement)
 
+        # 5. Terminar el bloque 'body' (si no lo está ya)
         if not self.builder.block.is_terminated:
             self.builder.ret(ir.Constant(ir.IntType(32), 0))
             
+        # 6. Terminar el bloque 'entry' saltando al 'body'
+        self.entry_builder.branch(body_block)
+            
+        # 7. Limpiar estado
         self.current_function = None
         self.builder = None
         self.local_symbol_table = {}
+        self.entry_builder = None
+    # --- FIN DE CORRECCIÓN ---
 
+    # ---
+    # --- CORRECCIÓN ARQUITECTURA: visit_function_declaration ---
+    # ---
     def visit_function_declaration(self, node):
         """Define una nueva función en el módulo LLVM."""
         func_name = node.value
@@ -216,21 +240,33 @@ class CodeGenerator:
         self.function_symbol_table[func_name] = func
 
         self.current_function = func
+        
+        # 1. Crear bloque 'entry' (SOLO para 'alloca' de parámetros y variables)
         entry_block = func.append_basic_block(name="entry")
-        self.builder = ir.IRBuilder(entry_block)
+        self.entry_builder = ir.IRBuilder(entry_block)
+        
+        # 2. Crear bloque 'body' (para el código)
+        body_block = func.append_basic_block(name="body")
+        self.builder = ir.IRBuilder(body_block) # self.builder apunta a 'body'
         self.local_symbol_table = {}
 
+        # 3. Crear 'alloca' para parámetros en 'entry' y guardarlos
         for i, arg in enumerate(func.args):
             param_node = param_list_node.children[i]
             param_name = param_node.value
             arg.name = param_name
             
-            ptr = self.builder.alloca(arg.type, name=f"{param_name}_ptr")
+            # Usar 'entry_builder' para el 'alloca'
+            ptr = self.entry_builder.alloca(arg.type, name=f"{param_name}_ptr")
+            self.local_symbol_table[param_name] = ptr
+            
+            # Usar 'self.builder' (apuntando a 'body') para el 'store'
             self.builder.store(arg, ptr) 
-            self.local_symbol_table[param_name] = ptr 
 
+        # 4. Visitar el cuerpo (usará 'self.builder' -> 'body')
         self.visit(body_node)
 
+        # 5. Terminar el bloque 'body' (si no lo está ya)
         if not self.builder.block.is_terminated:
             if return_type == ir.VoidType():
                 self.builder.ret_void()
@@ -238,24 +274,43 @@ class CodeGenerator:
                 default_ret_val = ir.Constant(return_type, 0)
                 self.builder.ret(default_ret_val)
 
+        # 6. Terminar el bloque 'entry' saltando al 'body'
+        self.entry_builder.branch(body_block)
+
+        # 7. Limpiar estado
         self.current_function = None
         self.builder = None
         self.local_symbol_table = {}
+        self.entry_builder = None
+    # --- FIN DE CORRECCIÓN ---
 
+    # ---
+    # --- CORRECCIÓN ARQUITECTURA: visit_declaration ---
+    # ---
     def visit_declaration(self, node):
         """Maneja la declaración de variables (ej: 'int a;')."""
         var_type = self.get_llvm_type(node.value)
 
         for child in node.children:
+            var_name = ""
             if child.type == ASTNodeType.ASSIGNMENT:
                 var_name = child.children[0].value
-                ptr = self.builder.alloca(var_type, name=var_name)
-                self.local_symbol_table[var_name] = ptr
-                self.visit(child)
             else:
                 var_name = child.value
-                ptr = self.builder.alloca(var_type, name=var_name)
-                self.local_symbol_table[var_name] = ptr
+            
+            # 1. Usar 'entry_builder' para el 'alloca'
+            #    Esto lo coloca en el bloque 'entry' de la función actual.
+            ptr = self.entry_builder.alloca(var_type, name=var_name)
+            
+            self.local_symbol_table[var_name] = ptr
+            
+            if child.type == ASTNodeType.ASSIGNMENT:
+                # 2. La asignación SÍ se genera en el bloque actual
+                #    (usando self.builder, que apunta a 'body' o 'if_then', etc.)
+                self.visit(child)
+    # ---
+    # --- FIN DE LA CORRECCIÓN ---
+    # ---
 
     def visit_assignment(self, node):
         """Maneja la asignación (ej: 'a = 10;')."""
@@ -324,6 +379,17 @@ class CodeGenerator:
         right_val = self.visit(node.children[1])
         
         op = node.value
+
+        is_string_op = False
+        if op == '+' and isinstance(left_val.type, ir.PointerType) and isinstance(right_val.type, ir.PointerType):
+            if left_val.type.pointee == ir.IntType(8) and right_val.type.pointee == ir.IntType(8):
+                is_string_op = True
+
+        if is_string_op:
+            raise NotImplementedError(
+                f"Error del generador en línea {node.line}: La concatenación de strings (+) "
+                "aún no está implementada (requiere librería externa de C)."
+            )
         
         left_val, right_val, is_float = self._promote_types(left_val, right_val)
 
@@ -400,19 +466,15 @@ class CodeGenerator:
             self.builder.cbranch(condition_bool, then_block, endif_block)
             
         self.builder.position_at_start(then_block)
-        self.visit(node.children[1]) # Visita el ASTNode.BLOCK del 'then'
+        self.visit(node.children[1]) 
         if not self.builder.block.is_terminated:
-            # --- CORRECCIÓN ---
             self.builder.branch(endif_block)
-            # --- FIN CORRECCIÓN ---
             
         if has_else:
             self.builder.position_at_start(else_block)
-            self.visit(node.children[2]) # Visita el ASTNode.BLOCK del 'else'
+            self.visit(node.children[2]) 
             if not self.builder.block.is_terminated:
-                # --- CORRECCIÓN ---
                 self.builder.branch(endif_block)
-                # --- FIN CORRECCIÓN ---
         
         self.builder.position_at_start(endif_block)
 
@@ -423,9 +485,7 @@ class CodeGenerator:
         loop_body = self.current_function.append_basic_block('while_body')
         loop_end = self.current_function.append_basic_block('while_end')
         
-        # --- CORRECCIÓN ---
         self.builder.branch(loop_header)
-        # --- FIN CORRECCIÓN ---
         
         self.builder.position_at_start(loop_header)
         condition_node = node.children[0]
@@ -436,9 +496,7 @@ class CodeGenerator:
         self.builder.position_at_start(loop_body)
         self.visit(node.children[1]) 
         if not self.builder.block.is_terminated:
-            # --- CORRECCIÓN ---
             self.builder.branch(loop_header)
-            # --- FIN CORRECCIÓN ---
             
         self.builder.position_at_start(loop_end)
     
@@ -448,9 +506,7 @@ class CodeGenerator:
         loop_body = self.current_function.append_basic_block('do_body')
         loop_end = self.current_function.append_basic_block('do_end')
 
-        # --- CORRECCIÓN ---
         self.builder.branch(loop_body)
-        # --- FIN CORRECCIÓN ---
         
         self.builder.position_at_start(loop_body)
         self.visit(node.children[0]) 
@@ -472,30 +528,24 @@ class CodeGenerator:
         loop_inc = self.current_function.append_basic_block('for_inc')
         loop_end = self.current_function.append_basic_block('for_end')
 
-        self.visit(node.children[0])
+        self.visit(node.children[0]) # init
         
-        # --- CORRECCIÓN ---
         self.builder.branch(loop_header)
-        # --- FIN CORRECCIÓN ---
 
-        self.builder.position_at_start(loop_header)
+        self.builder.position_at_start(loop_header) # condition
         condition_val = self.visit(node.children[1])
         condition_bool = self._to_boolean(condition_val)
         self.builder.cbranch(condition_bool, loop_body, loop_end)
         
-        self.builder.position_at_start(loop_body)
+        self.builder.position_at_start(loop_body) # body
         self.visit(node.children[3])
         if not self.builder.block.is_terminated:
-            # --- CORRECCIÓN ---
             self.builder.branch(loop_inc) 
-            # --- FIN CORRECCIÓN ---
             
-        self.builder.position_at_start(loop_inc)
+        self.builder.position_at_start(loop_inc) # increment
         self.visit(node.children[2])
         if not self.builder.block.is_terminated:
-            # --- CORRECCIÓN ---
             self.builder.branch(loop_header) 
-            # --- FIN CORRECCIÓN ---
 
         self.builder.position_at_start(loop_end)
         
@@ -528,15 +578,11 @@ class CodeGenerator:
             self.builder.position_at_start(block)
             self.visit(body_node)
             if not self.builder.block.is_terminated:
-                # --- CORRECCIÓN ---
                 self.builder.branch(switch_end) 
-                # --- FIN CORRECCIÓN ---
         
         if not default_block.instructions:
             self.builder.position_at_start(default_block)
-            # --- CORRECCIÓN ---
             self.builder.branch(switch_end)
-            # --- FIN CORRECCIÓN ---
             
         self.builder.position_at_start(switch_end)
 
