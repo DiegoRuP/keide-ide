@@ -30,6 +30,10 @@ class ASTNodeType(Enum):
     SWITCH_STATEMENT = auto()
     CASE_BLOCK = auto()
     DEFAULT_BLOCK = auto() 
+    # --- AÑADIDO EN LA MODIFICACIÓN ---
+    FUNCTION_CALL = auto()
+    RETURN_STATEMENT = auto()
+    # --- FIN DE AÑADIDO ---
 
 class ASTNode:
     def __init__(self, node_type, value=None, children=None, line=None, column=None):
@@ -43,7 +47,6 @@ class ASTNode:
         self.data_type = None
         self.scope = None
         self.state = None
-        # self.memory_address = None # Dirección de memoria asignada
     
     def to_dict(self):
         return {
@@ -57,7 +60,6 @@ class ASTNode:
             'data_type': self.data_type,
             'scope': self.scope,
             'state': self.state,
-            # 'memory_address': self.memory_address
         }
 
 class SyntaxError:
@@ -172,7 +174,7 @@ class SyntacticAnalyzer:
         if self.match(TokenType.SYMBOL, ";"):
             self.consume()
     
-    # REGLAS GRAMATICALES - SIN VERIFICACIÓN SEMÁNTICA
+    # REGLAS GRAMATICALES
     
     def program(self):
         """program -> (global_declaration)* main_block"""
@@ -309,9 +311,11 @@ class SyntacticAnalyzer:
         return main_node
     
     def statement(self):
-        """statement -> declaration | assignment | if_statement | while_statement | 
-                       do_until_statement | input_statement | output_statement | 
-                       increment_decrement"""
+        """
+        statement -> declaration | assignment | if_statement | while_statement | 
+                     do_until_statement | input_statement | output_statement | 
+                     increment_decrement | return_statement | function_call_statement
+        """
         
         token = self.current_token()
         if not token:
@@ -326,35 +330,44 @@ class SyntacticAnalyzer:
         if token.type == TokenType.KEYWORD and token.value in ["int", "float", "string"]:
             return self.declaration()
             
-        # Estructuras de control
+        # Estructuras de control y E/S
         elif token.type == TokenType.KEYWORD:
             if token.value == "if":
                 return self.if_statement()
-            elif token.value == "while":
+            if token.value == "while":
                 return self.while_statement()
-            elif token.value == "do":
+            if token.value == "do":
                 return self.do_until_statement()
-            elif token.value == "for":
+            if token.value == "for":
                 return self.for_statement()
-            elif token.value == "switch":
+            if token.value == "switch":
                 return self.switch_statement()
-            elif token.value == "cin":
+            if token.value == "cin":
                 return self.input_statement()
-            elif token.value == "cout":
+            if token.value == "cout":
                 return self.output_statement()
+            # --- AÑADIDO ---
+            if token.value == "return":
+                return self.return_statement()
+            # --- FIN DE AÑADIDO ---
                 
-        # Asignación o expresión
+        # Asignación, llamada a función, o incremento/decremento
         elif token.type == TokenType.IDENTIFIER:
-            # NO verificar si la variable está declarada - eso es semántico
-            
-            # Mirar adelante para ver si es asignación o incremento/decremento
             next_token = self.peek()
+            
             if next_token and next_token.type == TokenType.ASSIGNMENT:
                 return self.assignment()
             elif next_token and next_token.type == TokenType.ARITHMETIC_OP and next_token.value in ["++", "--"]:
                 return self.increment_decrement()
+            # --- AÑADIDO ---
+            elif next_token and next_token.type == TokenType.SYMBOL and next_token.value == "(":
+                # Es una llamada a función usada como sentencia
+                call_node = self.primary_expression() # primary_expression parseará la llamada
+                if not self.consume(TokenType.SYMBOL, ";"):
+                    self.error("Falta ';' después de la llamada a función")
+                return call_node
+            # --- FIN DE AÑADIDO ---
             else:
-                # Si no es asignación ni incremento, es un error sintáctico
                 self.error(f"Sentencia inválida comenzando con '{token.value}'")
                 self.sync_to_semicolon()
                 return None
@@ -364,16 +377,34 @@ class SyntacticAnalyzer:
             self.current += 1
             return None
     
+    # --- AÑADIDO ---
+    def return_statement(self):
+        """return_statement -> return (expression)? ;"""
+        ret_token = self.consume(TokenType.KEYWORD, "return")
+        
+        # Opcional: permitir 'return;' para funciones void
+        if self.match(TokenType.SYMBOL, ";"):
+            self.consume()
+            return ASTNode(ASTNodeType.RETURN_STATEMENT, "void_return", [], ret_token.line, ret_token.column)
+
+        # Si no es ';', debe haber una expresión
+        expr = self.expression()
+        node = ASTNode(ASTNodeType.RETURN_STATEMENT, "return", [expr], ret_token.line, ret_token.column)
+        
+        if not self.consume(TokenType.SYMBOL, ";"):
+            self.error("Falta ';' al final de la sentencia return")
+        
+        return node
+    # --- FIN DE AÑADIDO ---
+    
     def declaration(self):
-        """declaration -> type identifier (, identifier)* ;"""
+        """declaration -> type identifier (= expression)? (, identifier (= expression)?)* ;"""
         type_token = self.consume()
         if not type_token:
             return None
             
         node = ASTNode(ASTNodeType.DECLARATION, type_token.value, [], type_token.line, type_token.column)
         
-        # --- INICIO DE LA MODIFICACIÓN ---
-
         def parse_var_declarator(declaration_node):
             """Función auxiliar para parsear 'identificador (= expresion)?'"""
             id_token = self.consume(TokenType.IDENTIFIER)
@@ -382,7 +413,6 @@ class SyntacticAnalyzer:
 
             if self.match(TokenType.ASSIGNMENT):
                 # Caso con inicialización: int x = 10;
-                # Creamos un nodo de asignación como hijo de la declaración.
                 eq_token = self.consume()
                 expr_node = self.expression()
                 
@@ -401,8 +431,6 @@ class SyntacticAnalyzer:
         while self.match(TokenType.SYMBOL, ","):
             self.consume() # Consumir la coma
             parse_var_declarator(node)
-
-        # --- FIN DE LA MODIFICACIÓN ---
         
         if not self.consume(TokenType.SYMBOL, ";"):
             self.error("Falta ';' al final de la declaración")
@@ -688,8 +716,13 @@ class SyntacticAnalyzer:
     def parse_case_block(self):
         """case_block -> case CONSTANT : statement* break ;"""
         case_token = self.consume(TokenType.KEYWORD, "case")
-        case_value = self.primary_expression() 
-        node = ASTNode(ASTNodeType.CASE_BLOCK, case_value.value, [], case_token.line, case_token.column)
+        
+        # El 'value' del case (ej. 1, 2)
+        case_value_node = self.primary_expression() 
+        if case_value_node.type != ASTNodeType.NUMBER: # Asumimos solo números
+            self.error("El valor del 'case' debe ser un número constante")
+        
+        node = ASTNode(ASTNodeType.CASE_BLOCK, case_value_node.value, [], case_token.line, case_token.column)
         
         self.consume(TokenType.SYMBOL, ":")
         
@@ -733,16 +766,19 @@ class SyntacticAnalyzer:
 
         self.consume(TokenType.SYMBOL, "(")
 
+        # 1. Inicialización (puede ser declaración o asignación)
         if self.current_token().value in ["int", "float", "string"]:
-            init = self.declaration()
+            init = self.declaration() # 'int i = 0;'
         else:
-            init = self.assignment()
+            init = self.assignment() # 'i = 0;'
         node.children.append(init)
 
+        # 2. Condición
         condition = self.expression()
         node.children.append(condition)
         self.consume(TokenType.SYMBOL, ";")
 
+        # 3. Incremento (solo parseamos asignación simple 'i = i + 1')
         increment_id = self.consume(TokenType.IDENTIFIER)
         self.consume(TokenType.ASSIGNMENT, "=")
         increment_expr = self.expression()
@@ -753,6 +789,7 @@ class SyntacticAnalyzer:
 
         self.consume(TokenType.SYMBOL, ")")
         
+        # 4. Cuerpo
         body = ASTNode(ASTNodeType.BLOCK, "for_body")
         
         while self.current_token() and not self.match(TokenType.KEYWORD, "end"):
@@ -765,6 +802,8 @@ class SyntacticAnalyzer:
             self.error("Falta 'end' para cerrar el bloque for")
             
         return node
+    
+    # --- Métodos de Expresión ---
     
     def expression(self):
         """expression -> logical_or_expression"""
@@ -844,22 +883,33 @@ class SyntacticAnalyzer:
         return self.primary_expression()
     
     def primary_expression(self):
-        """primary_expression -> identifier | number | string | true | false | ( expression )"""
+        """
+        primary_expression -> identifier | function_call | number | 
+                              string | true | false | ( expression )
+        """
         token = self.current_token()
         
         if not token:
             self.error("Se esperaba una expresión")
             return None
             
-        # Identificador
+        # Identificador (o llamada a función)
         if token.type == TokenType.IDENTIFIER:
             # Verificar si es un valor booleano
             if token.value in ["true", "false"]:
                 bool_token = self.consume()
                 return ASTNode(ASTNodeType.BOOLEAN, bool_token.value, [], bool_token.line, bool_token.column)
+            
+            id_token = self.consume() # Consumir el identificador
+
+            # --- MODIFICADO: Detectar llamada a función ---
+            if self.match(TokenType.SYMBOL, "("):
+                # Es una llamada a función
+                return self.parse_function_call(id_token)
             else:
-                id_token = self.consume()
+                # Es un identificador simple
                 return ASTNode(ASTNodeType.IDENTIFIER, id_token.value, [], id_token.line, id_token.column)
+            # --- FIN DE MODIFICADO ---
         
         # Número
         elif token.type == TokenType.NUMBER:
@@ -883,6 +933,39 @@ class SyntacticAnalyzer:
             self.error(f"Token inesperado en expresión: '{token.value}'")
             self.current += 1
             return None
+
+    # --- AÑADIDO ---
+    def parse_function_call(self, id_token):
+        """
+        Parsea una llamada a función después de que el ID ha sido consumido.
+        function_call -> identifier ( argument_list? )
+        """
+        node = ASTNode(ASTNodeType.FUNCTION_CALL, id_token.value, [], id_token.line, id_token.column)
+        
+        self.consume(TokenType.SYMBOL, "(")
+        
+        # Parsear lista de argumentos
+        if not self.match(TokenType.SYMBOL, ")"):
+            while True:
+                arg_expr = self.expression()
+                if arg_expr:
+                    node.children.append(arg_expr)
+                
+                if self.match(TokenType.SYMBOL, ","):
+                    self.consume()
+                elif self.match(TokenType.SYMBOL, ")"):
+                    break
+                else:
+                    self.error("Se esperaba ',' o ')' en la lista de argumentos")
+                    break
+        
+        self.consume(TokenType.SYMBOL, ")")
+        return node
+    # --- FIN DE AÑADIDO ---
+
+# -----------------------------------------------------------------
+# --- FUNCIONES AUXILIARES (PARA CORREGIR EL IMPORT ERROR) ---
+# -----------------------------------------------------------------
 
 def format_ast_tree(node, indent=0):
     """Formatea el AST para impresión legible - INCLUYE COLUMNAS"""
@@ -973,4 +1056,3 @@ def analyze_syntax(tokens):
     ast, errors = analyzer.parse()
     
     return ast, errors
-

@@ -31,16 +31,19 @@ class SymbolTable:
             self.scopes.pop()
 
 
-    def define(self, name, symbol_type, line, column, initial_value=None):
+    def define(self, name, symbol_type, line, column, extra_info=None):
         """Define un nuevo símbolo en el ámbito ACTUAL."""
         current_scope_for_history = self.scope_history[-1]
         current_scope_for_lookup = self.scopes[-1]
         
         if name in current_scope_for_lookup:
             return (f"Error Semántico en línea {line}, columna {column}: "
-                    f"La variable '{name}' ya ha sido declarada en el ámbito '{current_scope_for_lookup['__name__']}'.")
+                    f"El símbolo '{name}' ya ha sido declarado en el ámbito '{current_scope_for_lookup['__name__']}'.")
         
-        symbol_info = {'type': symbol_type, 'line': line, 'column': column, 'value': initial_value}
+        symbol_info = {'type': symbol_type, 'line': line, 'column': column}
+        
+        if extra_info:
+            symbol_info.update(extra_info) # Para 'value', 'param_types', etc.
         
         current_scope_for_lookup[name] = symbol_info
         current_scope_for_history[name] = symbol_info
@@ -66,7 +69,8 @@ class SemanticAnalyzer:
     def __init__(self):
         self.symbol_table = SymbolTable()
         self.errors = []
-        # self.memory_counter = 1000
+        # Rastrear la función actual para validar 'return'
+        self.current_function_return_type = None
 
     def analyze(self, node):
         self.visit(node)
@@ -83,15 +87,19 @@ class SemanticAnalyzer:
         return visitor(node)
 
     def generic_visit(self, node):
+        node_type = None
         for child in node.children:
-            self.visit(child)
-        return None
+            node_type = self.visit(child)
+        return node_type
 
     def visit_program(self, node):
         for child in node.children:
             self.visit(child)
 
     def visit_main(self, node):
+        # Main es como una función que retorna 'int'
+        self.current_function_return_type = 'int'
+        
         self.symbol_table.enter_scope('main')
         node.scope = self.get_current_scope_name()
         
@@ -99,29 +107,52 @@ class SemanticAnalyzer:
             self.visit(statement)
         self.symbol_table.exit_scope()
         
+        self.current_function_return_type = None # Salir de la "función" main
+        
     def visit_function_declaration(self, node):
         func_name = node.value
         return_type_node = node.children[0]
         return_type = return_type_node.value
 
-        error = self.symbol_table.define(func_name, f"function(returns {return_type})", node.line, node.column)
+        # --- Preparar info de parámetros ANTES de definir la función ---
+        param_list_node = node.children[1]
+        param_types = []
+        for param_node in param_list_node.children:
+            # Anotamos el tipo del parámetro (ej. 'int')
+            param_types.append(param_node.children[0].value)
+        # --- FIN ---
+
+        func_info = {
+            'param_types': param_types,
+            'return_type': return_type
+        }
+        
+        # Definir la función en el ámbito actual (global)
+        error = self.symbol_table.define(func_name, f"function", node.line, node.column, extra_info=func_info)
         if error:
             self.errors.append(error)
 
         node.scope = self.get_current_scope_name()
-        node.data_type = f"function(returns {return_type})"
+        node.data_type = return_type # El tipo del nodo es su tipo de retorno
         node.state = 'declarado'
 
+        # Gestionar el 'return'
+        self.current_function_return_type = return_type
+        
+        # Entrar en el ámbito de la función
         self.symbol_table.enter_scope(func_name)
         
-        param_list_node = node.children[1]
+        # Visitar (y definir) los parámetros dentro del nuevo ámbito
         self.visit(param_list_node)
         
+        # Visitar el cuerpo
         if len(node.children) > 2:
             body_node = node.children[2]
             self.visit(body_node)
 
         self.symbol_table.exit_scope()
+        
+        self.current_function_return_type = None # Salir de la función
         
     def visit_parameter_list(self, node):
         """Recorre cada nodo de parámetro en la lista."""
@@ -141,8 +172,6 @@ class SemanticAnalyzer:
             node.scope = self.get_current_scope_name()
             node.data_type = param_type
             node.state = 'declarado'
-            # node.memory_address = f"@{self.memory_counter}"
-            # self.memory_counter += 4
 
     def visit_declaration(self, node):
         var_type = node.value
@@ -162,7 +191,7 @@ class SemanticAnalyzer:
                 if expr_node.type in [ASTNodeType.NUMBER, ASTNodeType.STRING]:
                     initial_value = expr_node.value
                 
-            error = self.symbol_table.define(var_name, var_type, var_node.line, var_node.column, initial_value=initial_value)
+            error = self.symbol_table.define(var_name, var_type, var_node.line, var_node.column, extra_info={'value': initial_value})
                 
             if error:
                 self.errors.append(error)
@@ -173,7 +202,7 @@ class SemanticAnalyzer:
                 
             if child.type == ASTNodeType.ASSIGNMENT:
                 child.scope = current_scope
-                self.visit_assignment(child)
+                self.visit_assignment(child) # Visitar la asignación para comprobar tipos
 
     def visit_assignment(self, node):
         var_node = node.children[0]
@@ -193,6 +222,7 @@ class SemanticAnalyzer:
         expected_type = var_info['type']
 
         if expr_type and expr_type != "error_type":
+            # Reglas de compatibilidad (int se puede asignar a float)
             if expected_type == 'float' and expr_type not in ['float', 'int']:
                 self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: No se puede asignar un tipo '{expr_type}' a una variable de tipo 'float'.")
             elif expected_type == 'int' and expr_type not in ['int']:
@@ -206,6 +236,10 @@ class SemanticAnalyzer:
         if not var_info:
             self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: La variable '{var_name}' no ha sido declarada.")
             return "error_type"
+        
+        # No anotar funciones como 'utilizadas' aquí
+        if var_info['type'] == 'function':
+            return "function_type"
         
         node.scope = self.get_current_scope_name()
         node.data_type = var_info['type']
@@ -241,16 +275,15 @@ class SemanticAnalyzer:
             elif op == '+' and left_type == 'string' and right_type == 'string':
                 result_type = 'string'
             elif op == '+' and (left_type == 'string' and right_type in ['int', 'float']):
-                result_type = 'string'
+                result_type = 'string' # Permitir concatenación string + num
             elif op == '+' and (right_type == 'string' and left_type in ['int', 'float']):
-                result_type = 'string'
+                result_type = 'string' # Permitir concatenación num + string
             else:
                 self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: Operador '{op}' no compatible entre tipos '{left_type}' y '{right_type}'.")
         
         elif op in ['<', '<=', '>', '>=', '==', '!=']:
             if left_type in ['int', 'float'] and right_type in ['int', 'float']:
                 result_type = 'boolean'
-                
             elif op in ['==', '!='] and left_type == 'string' and right_type == 'string':
                 result_type = 'boolean'
             else:
@@ -281,32 +314,33 @@ class SemanticAnalyzer:
         return node.data_type
 
     def check_condition(self, node, construct_name):
+        """Función auxiliar para verificar condiciones en if/while/until/for."""
         condition_type = self.visit(node)
-        if condition_type not in ['int', 'float', 'boolean']:
+        if condition_type not in ['int', 'float', 'boolean', 'error_type']:
             self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: La condición de un '{construct_name}' debe ser evaluable a booleano, pero se encontró '{condition_type}'.")
 
     def visit_if_statement(self, node):
         self.check_condition(node.children[0], "if")
     
         self.symbol_table.enter_scope("if_block") 
-        self.visit(node.children[1]) 
+        self.visit(node.children[1]) # Bloque 'then'
         self.symbol_table.exit_scope()
 
         if len(node.children) > 2:
             self.symbol_table.enter_scope("else_block")
-            self.visit(node.children[2])
+            self.visit(node.children[2]) # Bloque 'else'
             self.symbol_table.exit_scope()
 
     def visit_while_statement(self, node):
         self.check_condition(node.children[0], "while")
         
         self.symbol_table.enter_scope("while_block")
-        self.visit(node.children[1])
+        self.visit(node.children[1]) # Cuerpo del bucle
         self.symbol_table.exit_scope()
 
     def visit_do_until_statement(self, node):
         self.symbol_table.enter_scope("do_until_block")
-        self.visit(node.children[0])
+        self.visit(node.children[0]) # Cuerpo del bucle
         self.symbol_table.exit_scope()
         
         self.check_condition(node.children[1], "do-until")
@@ -318,6 +352,7 @@ class SemanticAnalyzer:
             self.errors.append(f"Error Semántico en línea {var_node.line}, columna {var_node.column}: La variable '{var_node.value}' no ha sido declarada para 'cin'.")
 
     def visit_output_statement(self, node):
+        # La expresión en cout puede ser de cualquier tipo, solo necesitamos verificar que sea válida.
         self.visit(node.children[0])
         
     def visit_switch_statement(self, node):
@@ -329,40 +364,122 @@ class SemanticAnalyzer:
         self.symbol_table.enter_scope('switch_block')
         
         case_labels = set()
+        has_default = False
+        
         for i in range(1, len(node.children)):
             case_node = node.children[i]
             
             if case_node.type == ASTNodeType.CASE_BLOCK:
-                if case_node.value in case_labels:
-                    self.errors.append(f"Error Semántico en línea {case_node.line}, columna {case_node.column}: Etiqueta 'case' duplicada con valor '{case_node.value}'.")
-                case_labels.add(case_node.value)
+                # El valor del 'case' es el 'value' del nodo CONSTANTE (número)
+                case_val = case_node.value
+                if case_val in case_labels:
+                    self.errors.append(f"Error Semántico en línea {case_node.line}, columna {case_node.column}: Etiqueta 'case' duplicada con valor '{case_val}'.")
+                case_labels.add(case_val)
             
-            self.visit(case_node)
+            if case_node.type == ASTNodeType.DEFAULT_BLOCK:
+                if has_default:
+                    self.errors.append(f"Error Semántico en línea {case_node.line}, columna {case_node.column}: Múltiples bloques 'default' en 'switch'.")
+                has_default = True
+
+            self.visit(case_node) # Visitar el 'case' o 'default'
         
         self.symbol_table.exit_scope()
 
     def visit_case_block(self, node):
+        # El 'case' tiene un hijo: el bloque de sentencias
         self.visit(node.children[0]) 
 
     def visit_default_block(self, node):
+        # El 'default' tiene un hijo: el bloque de sentencias
         self.visit(node.children[0]) 
     
     def visit_for_statement(self, node):
         self.symbol_table.enter_scope('for_block')
 
+        # Visitar nodos: 0=init, 1=condition, 2=increment, 3=body
         if node.children[0]:
-            self.visit(node.children[0])
+            self.visit(node.children[0]) # Init (declaración o asignación)
         if node.children[1]:
-            self.check_condition(node.children[1], "for")
+            self.check_condition(node.children[1], "for") # Condición
         if node.children[2]:
-            self.visit(node.children[2])
+            self.visit(node.children[2]) # Incremento (asignación)
         if node.children[3]:
-            self.visit(node.children[3])
+            self.visit(node.children[3]) # Cuerpo (bloque)
             
         self.symbol_table.exit_scope()
 
+    def visit_return_statement(self, node):
+        if self.current_function_return_type is None:
+            self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: Sentencia 'return' fuera de una función.")
+            return
+
+        expected_type = self.current_function_return_type
+        
+        if node.value == "void_return":
+             if expected_type != 'void': # Asumiendo que tendrías un tipo 'void'
+                 self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: 'return' vacío en función que debe retornar '{expected_type}'.")
+             return
+
+        # Hay una expresión
+        expr_type = self.visit(node.children[0])
+        
+        if expr_type == "error_type":
+            return # Ya se reportó un error en la expresión
+
+        # Comprobar compatibilidad
+        if expected_type == 'float' and expr_type not in ['float', 'int']:
+            self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: No se puede retornar tipo '{expr_type}' de una función que retorna 'float'.")
+        elif expected_type == 'int' and expr_type not in ['int']:
+            self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: No se puede retornar tipo '{expr_type}' de una función que retorna 'int'.")
+        elif expected_type == 'string' and expr_type not in ['string']:
+             self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: No se puede retornar tipo '{expr_type}' de una función que retorna 'string'.")
+
+    def visit_function_call(self, node):
+        func_name = node.value
+        func_info = self.symbol_table.lookup(func_name)
+
+        if not func_info:
+            self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: Intento de llamar a función no declarada '{func_name}'.")
+            return "error_type"
+        
+        if func_info['type'] != 'function':
+            self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: '{func_name}' no es una función, es un(a) '{func_info['type']}'.")
+            return "error_type"
+
+        # Comprobar número de argumentos (aridad)
+        expected_args_count = len(func_info['param_types'])
+        provided_args_count = len(node.children)
+
+        if expected_args_count != provided_args_count:
+            self.errors.append(f"Error Semántico en línea {node.line}, columna {node.column}: La función '{func_name}' esperaba {expected_args_count} argumentos, pero recibió {provided_args_count}.")
+            return "error_type"
+        
+        # Comprobar tipos de argumentos
+        for i, arg_node in enumerate(node.children):
+            arg_type = self.visit(arg_node)
+            expected_arg_type = func_info['param_types'][i]
+            
+            # Chequeo simple de compatibilidad
+            if expected_arg_type == 'float' and arg_type not in ['float', 'int']:
+                 self.errors.append(f"Error Semántico en línea {arg_node.line}, columna {arg_node.column}: Argumento {i+1} de '{func_name}' es '{arg_type}', se esperaba 'float' o 'int'.")
+            elif expected_arg_type == 'int' and arg_type != 'int':
+                 self.errors.append(f"Error Semántico en línea {arg_node.line}, columna {arg_node.column}: Argumento {i+1} de '{func_name}' es '{arg_type}', se esperaba 'int'.")
+            elif expected_arg_type == 'string' and arg_type != 'string':
+                 self.errors.append(f"Error Semántico en línea {arg_node.line}, columna {arg_node.column}: Argumento {i+1} de '{func_name}' es '{arg_type}', se esperaba 'string'.")
+
+        # El tipo de la expresión 'function_call' es el tipo de retorno de la función
+        node.data_type = func_info['return_type']
+        return func_info['return_type']
+
+# -----------------------------------------------------------------
+# --- FUNCIÓN AUXILIAR (PARA CORREGIR EL IMPORT ERROR) ---
+# -----------------------------------------------------------------
         
 def semantic_tree_to_html(node):
+    """
+    Convierte el AST (después del análisis semántico) a HTML colapsable,
+    incluyendo la información de tipos, ámbitos, etc.
+    """
     if not node:
         return ""
 
@@ -373,6 +490,7 @@ def semantic_tree_to_html(node):
     if node.value:
         html += f' <span class="node-value">[{node.value}]</span>'
 
+    # --- Añadir Información Semántica ---
     sem_info = []
     if node.data_type:
         sem_info.append(f'Tipo: {node.data_type}')
@@ -383,14 +501,15 @@ def semantic_tree_to_html(node):
         
     if sem_info:
         html += f' <span class="sem-info">({", ".join(sem_info)})</span>'
+    # --- Fin de Añadir Info Semántica ---
 
-    html += '</div>'  
+    html += '</div>'  # Cierra ast-label
 
     if node.children:
         html += '<div class="ast-children">'
         for child in node.children:
             html += semantic_tree_to_html(child)
-        html += '</div>'
+        html += '</div>' # Cierra ast-children
 
-    html += '</div>'
+    html += '</div>' # Cierra ast-node
     return html
