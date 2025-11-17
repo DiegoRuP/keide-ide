@@ -190,17 +190,26 @@ end
 
 Se pueden declarar funciones personalizadas con tipo de retorno y parámetros. Las variables declaradas dentro de una función son locales a ella.
 
+El compilador realiza un **análisis semántico completo** de las funciones, incluyendo:
+* **Validación de `return`**: Comprueba que el tipo de dato retornado coincida con la firma de la función.
+* **Validación de Llamadas**: Comprueba que al llamar una función, el número de argumentos (aridad) y el tipo de cada argumento coinciden con la declaración de la función.
+
 ```c
-int calcular_puntaje(int tiempo, int enemigos) {
-    int puntos_base = 1000;
-    int resultado = puntos_base - tiempo + (enemigos * 10);
+// Declaración de una función con parámetros y retorno
+int add(int a, int b) {
+    int result = a + b;
+    return result;
 }
 
 main {
-    // El compilador actual solo analiza la declaración de la función,
-    // no las llamadas a la misma.
+    // Llamada a la función
+    int sum = add(10, 5);
+    
+    // Esto generaría un error semántico:
+    // int error_call = add(10, "hola");
+    
+    cout << sum; // Imprime 15
 }
-```
 
 -----
 
@@ -225,9 +234,7 @@ El lenguaje incluye comandos básicos para interactuar con la consola.
 Es importante tener en cuenta las características que **no** están implementadas en la versión actual del compilador:
 
   * No se pueden declarar `arreglos (arrays)` ni `estructuras (structs)`.
-  * Las **llamadas a funciones** no se validan semánticamente (no se comprueba el número o tipo de argumentos).
-  * No se valida el uso de la sentencia `return` dentro de las funciones.
-
+  
 -----
 
 ## Arquitectura del Compilador
