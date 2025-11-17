@@ -22,14 +22,13 @@ class CodeGenerator:
         self.builder = None
         self.local_symbol_table = {}
         self.current_function = None 
-        # --- AÑADIDO: Referencia al builder del bloque 'entry' ---
         self.entry_builder = None
         
         self.function_symbol_table = {}
         
         self.string_counter = 0 
 
-        # --- Declaración de Funciones Externas (de C) ---
+        # --- Declaración de Funciones Externas ---
         printf_type = ir.FunctionType(ir.IntType(32), [ir.IntType(8).as_pointer()], var_arg=True)
         self.printf = ir.Function(self.module, printf_type, name="printf")
         
@@ -62,7 +61,6 @@ class CodeGenerator:
         self.scan_float.initializer = scan_float_val
         self.scan_float.global_constant = True
         
-        # --- Tipos LLVM ---
         self.types = {
             'int': ir.IntType(32),
             'float': ir.FloatType(),
@@ -103,8 +101,6 @@ class CodeGenerator:
             
             raise e
 
-    # --- Motor del Patrón Visitor ---
-    
     def visit(self, node):
         if not node:
             return None
@@ -118,8 +114,6 @@ class CodeGenerator:
         for child in node.children:
             self.visit(child)
         # No debe devolver nada
-
-    # --- Funciones Auxiliares de Conversión ---
 
     def _to_boolean(self, value):
         """Convierte un valor (int, float) a un booleano LLVM (i1)."""
@@ -181,9 +175,6 @@ class CodeGenerator:
             if child.type == ASTNodeType.MAIN:
                 self.visit(child)
 
-    # ---
-    # --- CORRECCIÓN ARQUITECTURA: visit_main ---
-    # ---
     def visit_main(self, node):
         """Define la función 'main' en el código LLVM."""
         main_type = ir.FunctionType(ir.IntType(32), [])
@@ -202,8 +193,6 @@ class CodeGenerator:
         self.local_symbol_table = {}
 
         # 4. Visitar sentencias
-        #    (visit_declaration usará 'entry_builder' para alloca)
-        #    (otros visit_... usarán 'self.builder' para el código)
         for statement in node.children:
             self.visit(statement)
 
@@ -219,11 +208,7 @@ class CodeGenerator:
         self.builder = None
         self.local_symbol_table = {}
         self.entry_builder = None
-    # --- FIN DE CORRECCIÓN ---
 
-    # ---
-    # --- CORRECCIÓN ARQUITECTURA: visit_function_declaration ---
-    # ---
     def visit_function_declaration(self, node):
         """Define una nueva función en el módulo LLVM."""
         func_name = node.value
@@ -282,11 +267,7 @@ class CodeGenerator:
         self.builder = None
         self.local_symbol_table = {}
         self.entry_builder = None
-    # --- FIN DE CORRECCIÓN ---
 
-    # ---
-    # --- CORRECCIÓN ARQUITECTURA: visit_declaration ---
-    # ---
     def visit_declaration(self, node):
         """Maneja la declaración de variables (ej: 'int a;')."""
         var_type = self.get_llvm_type(node.value)
@@ -308,9 +289,7 @@ class CodeGenerator:
                 # 2. La asignación SÍ se genera en el bloque actual
                 #    (usando self.builder, que apunta a 'body' o 'if_then', etc.)
                 self.visit(child)
-    # ---
-    # --- FIN DE LA CORRECCIÓN ---
-    # ---
+
 
     def visit_assignment(self, node):
         """Maneja la asignación (ej: 'a = 10;')."""
@@ -669,8 +648,6 @@ class CodeGenerator:
         zero = ir.Constant(ir.IntType(32), 0)
         gep_ptr = self.builder.gep(format_str_ptr, [zero, zero], inbounds=True, name="scanfmt_ptr")
         self.builder.call(self.scanf, [gep_ptr, var_ptr])
-
-    # --- VISITANTES DE BLOQUES ---
 
     def visit_block(self, node):
         """Visita un bloque de sentencias (ej. cuerpo de 'if', 'while', 'for')."""
