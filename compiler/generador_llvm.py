@@ -21,6 +21,7 @@ class CodeGenerator:
         # --- Estado de generación ---
         self.builder = None
         self.local_symbol_table = {}
+        self.global_symbol_table = {}
         self.current_function = None 
         self.entry_builder = None
         
@@ -167,13 +168,23 @@ class CodeGenerator:
 
     def visit_program(self, node):
         """Visitante para el nodo raíz del programa."""
-        for child in node.children:
-            if child.type == ASTNodeType.FUNCTION_DECLARATION:
-                self.visit(child)
+        
+        functions_to_visit = []
+        main_to_visit = None
         
         for child in node.children:
-            if child.type == ASTNodeType.MAIN:
+            if child.type == ASTNodeType.DECLARATION:
                 self.visit(child)
+            elif child.type == ASTNodeType.FUNCTION_DECLARATION:
+                functions_to_visit.append(child)
+            elif child.type == ASTNodeType.MAIN:
+                main_to_visit = child
+
+        for func_node in functions_to_visit:
+            self.visit(func_node)
+        
+        if main_to_visit:
+            self.visit(main_to_visit)
 
     def visit_main(self, node):
         """Define la función 'main' en el código LLVM."""
@@ -267,10 +278,51 @@ class CodeGenerator:
         self.builder = None
         self.local_symbol_table = {}
         self.entry_builder = None
+        
+    def get_constant_initializer(self, var_type, declaration_child_node):
+        """
+        Obtiene un inicializador CONSTATE para una variable global.
+        """
+        expr_node = None
+        if declaration_child_node.type == ASTNodeType.ASSIGNMENT:
+            expr_node = declaration_child_node.children[1]
+        
+        if expr_node:
+            if expr_node.type == ASTNodeType.NUMBER:
+                if var_type == self.types['float']:
+                    return ir.Constant(var_type, float(expr_node.value))
+                else: 
+                    return ir.Constant(var_type, int(expr_node.value))
+            
+            elif expr_node.type == ASTNodeType.STRING:
+                
+                raw_val = expr_node.value[1:-1]
+                c_str_val = raw_val + "\00"
+                byte_val = bytearray(c_str_val.encode("utf8"))
+                str_type = ir.ArrayType(ir.IntType(8), len(byte_val))
+                str_const = ir.Constant(str_type, byte_val)
+                
+                str_name = f".str.{self.string_counter}"
+                self.string_counter += 1
+                
+                g_str = ir.GlobalVariable(self.module, str_type, name=str_name)
+                g_str.initializer = str_const
+                g_str.global_constant = True
+                g_str.unnamed_addr = True
+                g_str.linkage = 'internal'
+
+                zero = ir.Constant(ir.IntType(32), 0)
+    
+                gep_ptr = g_str.gep([zero, zero]) 
+                return gep_ptr
+    
+        return ir.Constant(var_type, None)
 
     def visit_declaration(self, node):
-        """Maneja la declaración de variables (ej: 'int a;')."""
+        """Maneja la declaración de variables (locales y globales)."""
         var_type = self.get_llvm_type(node.value)
+
+        is_global = (self.entry_builder is None)
 
         for child in node.children:
             var_name = ""
@@ -279,16 +331,28 @@ class CodeGenerator:
             else:
                 var_name = child.value
             
-            # 1. Usar 'entry_builder' para el 'alloca'
-            #    Esto lo coloca en el bloque 'entry' de la función actual.
-            ptr = self.entry_builder.alloca(var_type, name=var_name)
-            
-            self.local_symbol_table[var_name] = ptr
-            
-            if child.type == ASTNodeType.ASSIGNMENT:
-                # 2. La asignación SÍ se genera en el bloque actual
-                #    (usando self.builder, que apunta a 'body' o 'if_then', etc.)
-                self.visit(child)
+            if is_global:
+                
+                ptr = ir.GlobalVariable(self.module, var_type, name=var_name)
+                
+                if child.type == ASTNodeType.ASSIGNMENT:
+                    initializer = self.get_constant_initializer(var_type, child)
+                    ptr.initializer = initializer
+                    ptr.linkage = 'internal' 
+                else:
+                    ptr.initializer = ir.Constant(var_type, None)
+                    ptr.linkage = 'common' 
+                
+                self.global_symbol_table[var_name] = ptr
+                
+            else:
+                
+                ptr = self.entry_builder.alloca(var_type, name=var_name)
+                self.local_symbol_table[var_name] = ptr
+                
+                if child.type == ASTNodeType.ASSIGNMENT:
+                    
+                    self.visit(child)
 
 
     def visit_assignment(self, node):
@@ -296,6 +360,9 @@ class CodeGenerator:
         var_name = node.children[0].value
         
         ptr = self.local_symbol_table.get(var_name)
+        if not ptr:
+            ptr = self.global_symbol_table.get(var_name)
+        
         if not ptr:
             raise ValueError(f"Variable '{var_name}' no definida para el generador")
 
@@ -305,12 +372,15 @@ class CodeGenerator:
         value_to_store = self._cast_to_type(value_to_store, target_type)
         
         self.builder.store(value_to_store, ptr)
-
+        
     def visit_identifier(self, node):
         """Maneja el uso de una variable en una expresión (ej: '... = a + 5;')."""
         var_name = node.value
         
         ptr = self.local_symbol_table.get(var_name)
+        if not ptr:
+            ptr = self.global_symbol_table.get(var_name)
+        
         if not ptr:
             raise ValueError(f"Variable '{var_name}' no definida para el generador")
         
