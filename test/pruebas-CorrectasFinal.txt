@@ -1,0 +1,78 @@
+// --- Archivo de Prueba Completo ---
+// Descripción: Prueba la mayoría de las características válidas del compilador,
+// incluyendo funciones, bucles, condicionales y E/S.
+// Resultado Esperado: 0 errores.
+
+string global_status = "ACTIVE";
+
+// --- Declaración de Función ---
+// Calcula el área y la multiplica por un factor.
+float calculate_area(float width, float height, int factor) {
+    float base_area = width * height;
+    float result = base_area * factor;
+    
+    cout << "Calculando área... Resultado parcial: ";
+    cout << result;
+    
+    return result;
+}
+
+// --- Función Principal ---
+main {
+    // --- Declaraciones y Asignaciones ---
+    int score = 100;
+    float health = 95.5;
+    string player_name = "Keide";
+
+    // --- Estructura IF-THEN-ELSE ---
+    if (health > 50.0 && global_status == "ACTIVE") then
+        cout << "El jugador está saludable.";
+    else
+        cout << "El jugador está en peligro.";
+    end
+
+    // --- Estructura WHILE ---
+    int counter = 3;
+    cout << "Inicio del bucle WHILE:";
+    while (counter > 0)
+        cout << counter;
+        counter = counter - 1;
+    end
+    cout << "Fin del bucle WHILE.";
+
+    // --- Estructura FOR ---
+    // Nota: El incremento debe ser 'i = i + 1' según la gramática.
+    cout << "Inicio del bucle FOR:";
+    for (int i = 0; i < 2; i = i + 1)
+        cout << "Iteración FOR: ";
+        cout << i;
+    end
+    cout << "Fin del bucle FOR.";
+
+    // --- Estructura SWITCH ---
+    int option = 1;
+    switch (option)
+        case 1:
+            cout << "SWITCH: Opción 1 seleccionada.";
+            break;
+        case 2:
+            cout << "SWITCH: Opción 2 seleccionada.";
+            break;
+        default:
+            cout << "SWITCH: Opción por defecto.";
+            break;
+    end
+
+    // --- Llamada a Función y E/S ---
+    cout << "Llamando a calculate_area(10.5, 5.0, 2)...";
+    float total_area = calculate_area(10.5, 5.0, 2);
+    
+    cout << "El área total calculada es: ";
+    cout << total_area;
+
+    // --- Prueba de CIN ---
+    cout << "Por favor, introduce tu nueva puntuación (int):";
+    cin >> score;
+    cout << "La nueva puntuación introducida es: ";
+    cout << score;
+}
