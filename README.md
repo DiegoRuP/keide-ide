@@ -42,24 +42,67 @@ Sigue estos pasos para instalar y ejecutar Keide IDE en tu máquina:
 
 Para entender cómo funciona Keide IDE, aquí tienes un desglose de las herramientas que utiliza y cómo está organizado el código.
 
-### Stack Tecnológico 🛠️
+## Stack Tecnológico 🛠️
 
 * **Framework Principal:** **Electron**
-    * Es el corazón de la aplicación. Nos permite construir una aplicación de escritorio nativa usando tecnologías web. Se divide en dos procesos:
+    * Es el núcleo de la aplicación; permite la creación de una aplicación de escritorio nativa multiplataforma utilizando tecnologías web (HTML, CSS, JS).
 * **Proceso Principal (Backend de UI):** **Node.js**
-    * Maneja la lógica de la aplicación "detrás de cámaras", como crear ventanas, interactuar con el sistema de archivos (abrir/guardar diálogos) y gestionar el ciclo de vida de la app.
-    * Utiliza `child_process` de Node.js para ejecutar el compilador de Python como un proceso separado.
+    * Gestiona el ciclo de vida de la aplicación, la creación de ventanas (`BrowserWindow`), la interacción con el sistema operativo (diálogos de archivos) y la orquestación de procesos secundarios.
+    * Emplea el módulo `child_process` de Node.js para invocar el compilador de Python de forma asíncrona.
 * **Proceso de Renderer (Frontend):** **HTML5**, **CSS3** y **JavaScript (ES6+)**
-    * Es la interfaz de usuario que ves (el editor, botones, paneles). Se ejecuta en un entorno de navegador web (Chromium).
+    * Comprende la interfaz de usuario renderizada dentro de una ventana de Chromium, gestionando la interacción directa con el usuario.
 * **Librerías Frontend:**
-    * **Bootstrap 5:** Utilizado para el diseño de la interfaz, los botones, los menús y la estructura responsive.
-    * **CodeMirror 5:** Es el componente de editor de texto que proporciona resaltado de sintaxis, números de línea y otras funciones de edición avanzadas.
+    * **Bootstrap 5:** Framework CSS para la maquetación y diseño de componentes de la interfaz de usuario (UI).
+    * **CodeMirror 5:** Componente de editor de texto avanzado que proporciona resaltado de sintaxis, numeración de líneas y capacidades de edición de código.
 * **Núcleo del Compilador:** **Python 3**
-    * Toda la lógica del compilador (léxico, sintáctico, semántico, generación de código) está escrita en Python para un desarrollo rápido y robusto.
+    * Lenguaje principal para la implementación del *frontend* del compilador (análisis léxico, sintáctico y semántico) y la generación de código intermedio.
 * **Generación de Código IR:** **`llvmlite` (Python)**
-    * Esta librería de Python se utiliza para construir programáticamente el Código Intermedio (IR) de LLVM desde nuestro AST.
+    * Librería *binding* de Python utilizada para construir programáticamente el Código Intermedio (IR) de LLVM a partir del AST validado.
 * **Toolchain de Backend:** **LLVM (clang, opt, llc)**
-    * El IDE depende de tener el conjunto de herramientas de LLVM instalado en el sistema. `compilador.py` invoca a `opt` (optimizador), `llc` (compilador estático) y `clang` (enlazador) para convertir el IR en un ejecutable nativo.
+    * El sistema depende de un *toolchain* de LLVM instalado en el sistema anfitrión. `compilador.py` invoca estas herramientas (`opt`, `llc`, `clang`) para la optimización, compilación y enlace del IR.
+
+---
+
+### Arquitectura de Compilación: El Rol de `llvmlite` y LLVM
+
+Para comprender el proceso de generación de código, es fundamental diferenciar entre **`llvmlite`** (la librería de Python) y **`LLVM`** (el *toolchain* de compilación del sistema). Nuestro compilador ejecuta este proceso en dos etapas principales:
+
+
+
+#### Etapa 1: Generación de IR (Frontend del Compilador)
+
+Esta etapa es gestionada por `generador_llvm.py` y utiliza la librería `llvmlite`.
+
+1.  **Rol de `llvmlite`:** Actúa como un *binding* de Python para la API de construcción de IR de LLVM. No compila código, sino que provee las herramientas programáticas (`ir.Module`, `ir.IRBuilder`) para construir un módulo de LLVM IR instrucción por instrucción.
+
+2.  **Proceso de Traducción (AST a IR):**
+    * `visit_declaration` invoca a `self.entry_builder.alloca(ir.IntType(32), name="x")`, lo que genera la instrucción de reserva de espacio en pila `%x = alloca i32` en el módulo IR.
+    * `visit_binary_op` (para `+`) invoca a `self.builder.add(val_a, val_b)`, generando la instrucción aritmética `%add = add i32 %0, %1`.
+    * `visit_output_statement` (`cout`) invoca a `self.builder.call(self.printf, ...)`, generando la instrucción `call @printf(...)` para una función externa.
+
+**Salida de la Etapa 1:** Un archivo de texto (`programa.ll`) que contiene la representación intermedia (IR) de LLVM. Este IR es una descripción abstracta, estáticamente tipada y de bajo nivel del programa.
+
+#### Etapa 2: Compilación y Enlace (Backend del Compilador)
+
+Esta etapa es orquestada por `compilador.py` (función `run_llvm_compiler`) e invoca las herramientas del *toolchain* de LLVM instaladas en el sistema anfitrión mediante `subprocess`.
+
+1.  **Optimización (`opt`):**
+    * **Comando:** `opt -O2 programa.ll -o programa_opt.ll`
+    * Se invoca al optimizador de LLVM. Lee el IR generado, aplica pases de optimización (ej. eliminación de código muerto, *inlining* de funciones) y produce un IR optimizado (`.ll`).
+
+2.  **Compilación (`llc`):**
+    * **Comando:** `llc programa_opt.ll -o programa.s`
+    * Se invoca `llc` (LLVM Static Compiler). Este traduce el IR (independiente de la plataforma) a código ensamblador nativo (`.s`) específico de la arquitectura del sistema anfitrión (x86_64, ARM64, etc.).
+
+3.  **Enlace (`clang`):**
+    * **Comando:** `clang programa.s -o programa`
+    * Se utiliza un enlazador (como `clang`) para dos tareas finales:
+        1.  Ensamblar el código (`.s`) en un archivo objeto (`.o`).
+        2.  **Enlazar** el archivo objeto con la Librería Estándar de C (`libc`).
+
+Este enlace es el paso crucial donde las funciones externas declaradas en el IR (como `printf` y `scanf`) se resuelven contra sus implementaciones reales en `libc`.
+
+**Salida de la Etapa 2:** Un archivo binario (`programa`) ejecutable nativo.
 
 ### Estructura del Código 📁
 
